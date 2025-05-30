@@ -37,7 +37,7 @@ def send_message():
                 subject="GAURAV RAYAT RESUME",
                 sender='gaurav.rayat2004@gmail.com',
                 recipients=[email],
-                body="Please find the resume of GAURAV RAYAT here!!",
+                body="Please find the resume of GAURAV RAYAT here!!"
             )
         msg.attach("Gaurav_Rayat_Resume.pdf", "application/pdf", open("static/assets/resume.pdf", "rb").read())
         mail.send(msg)
