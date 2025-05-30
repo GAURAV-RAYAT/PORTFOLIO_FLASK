@@ -41,7 +41,5 @@ def send_message():
             )
         msg.attach("Gaurav_Rayat_Resume.pdf", "application/pdf", open("static/assets/resume.pdf", "rb").read())
         mail.send(msg)
+        
     return render_template('index.html')
-
-if __name__ == '__main__':
-    app.run(debug=True)
