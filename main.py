@@ -33,18 +33,3 @@ def send_message():
             )
         mail.send(msg)
     return render_template('index.html')
-
-@app.route('/send_resume', methods=['POST'])
-def send_resume():
-    email = request.form.get('email')
-
-    if email:
-            msg = Message(
-            subject="GAURAV RAYAT RESUME",
-            sender='gaurav.rayat2004@gmail.com',
-            recipients=[email],
-            body="GAURAV RAYAT's RESUME"
-            )
-            msg.attach("Gaurav_Rayat_Resume.pdf", "application/pdf", open("static/assets/resume.pdf", "rb").read())
-            mail.send(msg)
-    return render_template('index.html')
