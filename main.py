@@ -1,6 +1,6 @@
-from flask import Flask, render_template,request, jsonify
+from flask import Flask, render_template,request
 from flask_mail import Mail, Message
-import os
+
 # create flask app
 app = Flask(__name__)
 app.secret_key = "c996df478d4c087e03029a962b7f016e"
@@ -41,5 +41,5 @@ def send_message():
             )
         msg.attach("Gaurav_Rayat_Resume.pdf", "application/pdf", open("static/assets/resume.pdf", "rb").read())
         mail.send(msg)
-        
+
     return render_template('index.html')
