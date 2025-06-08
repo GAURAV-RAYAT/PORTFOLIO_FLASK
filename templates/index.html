@@ -24,19 +24,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script async custom-element="amp-auto-ads" src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+  </script>
 </head>
 
 <body>
-  {% with messages = get_flashed_messages(with_categories=True) %}
-  {% if messages %}
-  {% for category, message in messages %}
-  <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-  {% endfor %}
-  {% endif %}
-  {% endwith %}
   <main>
     <!--
       - #SIDEBAR
@@ -827,5 +819,6 @@
     (adsbygoogle = window.adsbygoogle || []).push({});
   </script>
 </body>
-
+<amp-auto-ads type="adsense" data-ad-client="ca-pub-3307325598612046">
+</amp-auto-ads>
 </html>
