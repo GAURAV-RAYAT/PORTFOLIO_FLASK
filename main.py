@@ -1,4 +1,4 @@
-from flask import Flask, render_template,request
+from flask import Flask, render_template,request,flash
 from flask_mail import Mail, Message
 
 # create flask app
@@ -25,11 +25,17 @@ def send_message():
     message_content = request.form.get('message')
 
     if fullname and email and message_content:
-        msg = Message(
+        try:
+            msg = Message(
                 subject=f"Contact Form Message from {fullname}",
                 sender=email,
-                recipients=["gaurav.rayat2004@gmail.com","1722024@svc.du.ac.in"],
+                recipients=["gaurav.rayat2004@gmail.com", "1722024@svc.du.ac.in"],
                 body=f"Name: {fullname}\nEmail: {email}\nMessage: {message_content}"
             )
-        mail.send(msg)
+            mail.send(msg)
+            flash("Your message has been sent successfully!", "success")
+        except Exception as e:
+            flash("Failed to send the message. Please try again.", "danger")
+    else:
+        flash("All fields are required. Please fill in the form completely.", "warning")
     return render_template('index.html')
