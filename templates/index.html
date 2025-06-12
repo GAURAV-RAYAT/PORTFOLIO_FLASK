@@ -29,6 +29,21 @@
 </head>
 
 <body>
+  <div id="live-header" style="
+  background: #1e1e1e;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 999;
+">
+    <div id="user-location">📍 Locating...</div>
+    <div id="user-time">🕒 Loading time...</div>
+  </div>
+
   <main>
     <!--
       - #SIDEBAR
@@ -689,7 +704,7 @@
 
               </a>
             </li>
-            
+
             <li class="project-item  active" data-filter-item data-category="applications">
               <a href="https://github.com/GAURAV-RAYAT/Crime_analyser">
 
@@ -837,7 +852,30 @@
   <script>
     (adsbygoogle = window.adsbygoogle || []).push({});
   </script>
+
+  <script>
+    // Time updater
+    function updateTime() {
+      const now = new Date();
+      document.getElementById("user-time").textContent = "🕒 " + now.toLocaleTimeString();
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // IP-based location
+    fetch("https://ipapi.co/json/")
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("user-location").textContent =
+          `📍 ${data.city}, ${data.country_name}`;
+      })
+      .catch(() => {
+        document.getElementById("user-location").textContent = "📍 Location unavailable";
+      });
+  </script>
+
 </body>
 <amp-auto-ads type="adsense" data-ad-client="ca-pub-3307325598612046">
 </amp-auto-ads>
+
 </html>
