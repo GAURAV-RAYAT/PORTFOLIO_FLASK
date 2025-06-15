@@ -758,7 +758,7 @@
 
               </a>
             </li>
-            
+
             <li class="project-item  active" data-filter-item data-category="applications">
               <a href="https://school.gauravrayat.me">
 
@@ -873,11 +873,26 @@
       });
   </script>
 
+  <!-- Chatbot Container -->
+  <div id="chatbot-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
+    <button id="chat-toggle"
+      style="padding: 10px 15px; border-radius: 50%; background: #4CAF50; color: white; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+      💬
+    </button>
+    <div id="chat-box"
+      style="display: none; background: white; border: 1px solid #ddd; border-radius: 10px; width: 300px; height: 400px; overflow: hidden; box-shadow: 0 8px 16px rgba(0,0,0,0.2); flex-direction: column;">
+      <div style="background: #4CAF50; padding: 10px; color: white;">Ask me anything</div>
+      <div id="chat-log" style="flex: 1; padding: 10px; overflow-y: auto; height: 300px;"></div>
+      <form id="chat-form" style="display: flex; border-top: 1px solid #ddd;">
+        <input type="text" id="chat-input" placeholder="Type here..." style="flex: 1; border: none; padding: 10px;">
+        <button type="submit" style="border: none; background: #4CAF50; color: white; padding: 10px;">▶️</button>
+      </form>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='assets/js/chatbot.js') }}"></script>
+
 </body>
 <amp-auto-ads type="adsense" data-ad-client="ca-pub-3307325598612046">
 </amp-auto-ads>
-<<<<<<< HEAD </html>
-  =======
 
 </html>
->>>>>>> eeaefafcc05736992c09a804b250497dfce54248

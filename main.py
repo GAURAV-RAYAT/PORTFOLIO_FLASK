@@ -1,9 +1,11 @@
-from flask import Flask, render_template,request,flash
+from flask import Flask, render_template,request,flash, jsonify
 from flask_mail import Mail, Message
+import requests
 
 # create flask app
 app = Flask(__name__)
 app.secret_key = "c996df478d4c087e03029a962b7f016e"
+OPENROUTER_API_KEY = "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"
 
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -39,3 +41,34 @@ def send_message():
     else:
         flash("All fields are required. Please fill in the form completely.", "warning")
     return render_template('index.html')
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.get_json()
+    user_message = data.get("message", "")
+
+    if not user_message:
+        return jsonify({"response": "Please enter a message."})
+
+    try:
+        response = requests.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "openai/gpt-3.5-turbo",  # or try mistral/mixtral
+                "messages": [
+                    {"role": "system", "content": "You are Gaurav Rayat's portfolio assistant."},
+                    {"role": "user", "content": user_message}
+                ]
+            }
+        )
+        data = response.json()
+        reply = data["choices"][0]["message"]["content"].strip()
+    except Exception as e:
+        print("OpenRouter error:", e)
+        reply = "Sorry, I couldn't process your request."
+
+    return jsonify({"response": reply})
