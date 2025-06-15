@@ -1880,3 +1880,11 @@ textarea.form-input::-webkit-resizer { display: none; }
   .timeline-text { max-width: 700px; }
 
 }
+
+.avatar-box img {
+  transition: transform 0.3s ease;
+}
+
+.avatar-box img:hover {
+  transform: scale(1.05) rotate(3deg);
+}
