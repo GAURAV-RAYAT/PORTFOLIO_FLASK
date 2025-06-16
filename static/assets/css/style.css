@@ -1888,3 +1888,59 @@ textarea.form-input::-webkit-resizer { display: none; }
 .avatar-box img:hover {
   transform: scale(1.05) rotate(3deg);
 }
+
+
+.certification-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 1.5em;
+  padding: 1em;
+  align-items: flex-start;
+  white-space: nowrap;
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: black gray; /* Scrollbar colors */
+}
+
+/* Scrollbar customization for Webkit browsers (Chrome, Edge, etc.) */
+.certification-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.certification-container::-webkit-scrollbar-track {
+  background: #333; /* Gray background */
+}
+
+.certification-container::-webkit-scrollbar-thumb {
+  background: #666; /* Black thumb */
+  border-radius: 4px;
+}
+
+.certification-container::-webkit-scrollbar-thumb:hover {
+  background: #888; /* Slightly lighter on hover */
+}
+
+.certification-container figure {
+  margin: 0;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.certification-container img {
+  width: 250px; /* Fixed width for uniform size */
+  height: 150px; /* Fixed height for uniform size */
+  object-fit: cover; /* Maintain aspect ratio, fill the box */
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s;
+}
+
+.certification-container img:hover {
+  box-shadow: 0 4px 20px rgba(76, 175, 80, 0.2);
+}
+
+.certification-container figcaption {
+  font-size: 1em;
+  margin-top: 0.5em;
+  color: #ddd;
+}
