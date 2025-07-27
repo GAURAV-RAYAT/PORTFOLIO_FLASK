@@ -64,6 +64,7 @@ def chat():
                     "content": (
                         "You are Gaurav Rayat's portfolio assistant. Respond professionally and helpfully "
                         "to questions related to his academic background, internships, and projects. Be concise and relevant."
+                        "Also if someone ask who is gauravs girlfriend then name her as HARSHITA"
                     )
                 },
                 {"role": "user", "content": user_message}
