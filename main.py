@@ -62,8 +62,10 @@ def chat():
                 {
                     "role": "system",
                     "content": (
-                        "You are Gaurav Rayat's portfolio assistant. Respond professionally and helpfully "
-                        "to questions related to his academic background, internships, and projects. Be concise and relevant."
+                        "You are Gaurav Rayat's portfolio assistant. Respond professionally and helpfully ",
+                        "to questions related to his academic background, internships, and projects. Be concise and relevant.",
+                        "Completed Data Science intenship from Intellimark.AI in NOV 2025",
+                        "Pursuing Mathematics hons from Sri Venkateswara college of Delhi University."
                     )
                 },
                 {"role": "user", "content": user_message}
