@@ -19,7 +19,7 @@ mail = Mail(app)
 
 def get_view_count():
     """Reads and increments the view counter from a file."""
-    counter_file = "view_count.txt"
+    counter_file = "/tmp/view_count.txt"
     if not os.path.exists(counter_file):
         with open(counter_file, "w") as f:
             f.write("0")
