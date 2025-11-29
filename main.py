@@ -24,6 +24,10 @@ LINKEDIN_POSTS = [
     {
         "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7376244294661124096?collapsed=1", 
         "title": "AI in Medical Imaging: Revolutionizing Healthcare with Deep Learning"
+    },
+    {
+        "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7351984929309671424?collapsed=1", 
+        "title": "Internship Experience at QBE Consulting"
     }
 ]
 
