@@ -239,6 +239,15 @@
 
             Let’s connect and create something impactful together! 🚀🙌
           </p>
+          <div class="content-card" style="margin-top: 20px; border-left: 5px solid #FFD700;">
+            <h4 class="h4" style="color: #FFD700; display: flex; align-items: center; gap: 10px;">
+              <ion-icon name="trophy"></ion-icon> Achievement Unlocked
+            </h4>
+            <p style="color: var(--light-gray); margin-top: 5px;">
+              <strong>GATE 2025 Qualified</strong> in Data Science & AI<br>
+              All India Rank (AIR): <strong>2177</strong>
+            </p>
+          </div>
         </section>
 
 
@@ -325,6 +334,53 @@
 
           </ul>
 
+        </section>
+
+        <section class="skill">
+          <h3 class="h3 skills-title">My Skills</h3>
+          <ul class="skills-list content-card">
+
+            <li class="skills-item">
+              <div class="title-wrapper">
+                <h5 class="h5">Python (Pandas, NumPy, Scikit-learn)</h5>
+                <data value="90">90%</data>
+              </div>
+              <div class="skill-progress-bg">
+                <div class="skill-progress-fill" style="width: 90%;"></div>
+              </div>
+            </li>
+
+            <li class="skills-item">
+              <div class="title-wrapper">
+                <h5 class="h5">SQL (MySQL, PostgreSQL)</h5>
+                <data value="85">85%</data>
+              </div>
+              <div class="skill-progress-bg">
+                <div class="skill-progress-fill" style="width: 85%;"></div>
+              </div>
+            </li>
+
+            <li class="skills-item">
+              <div class="title-wrapper">
+                <h5 class="h5">Data Visualization (Power BI, Tableau)</h5>
+                <data value="80">80%</data>
+              </div>
+              <div class="skill-progress-bg">
+                <div class="skill-progress-fill" style="width: 80%;"></div>
+              </div>
+            </li>
+
+            <li class="skills-item">
+              <div class="title-wrapper">
+                <h5 class="h5">Machine Learning & AI</h5>
+                <data value="75">75%</data>
+              </div>
+              <div class="skill-progress-bg">
+                <div class="skill-progress-fill" style="width: 75%;"></div>
+              </div>
+            </li>
+
+          </ul>
         </section>
 
 
@@ -604,10 +660,6 @@
         </div>
       </article>
 
-
-
-
-
       <!--
         - #RESUME
       -->
@@ -618,6 +670,68 @@
           <h2 class="h2 article-title">Resume</h2>
         </header>
 
+        <section class="timeline">
+          <div class="title-wrapper">
+            <div class="icon-box">
+              <ion-icon name="book-outline"></ion-icon>
+            </div>
+            <h3 class="h3">Experience</h3>
+          </div>
+
+          <ol class="timeline-list">
+
+            <li class="timeline-item">
+              <h4 class="h4 timeline-item-title">Data Science Intern | Intellimark.AI</h4>
+              <span>Sept 2025 - Nov 2025</span>
+              <p class="timeline-text">
+                Built automated time-series forecasting pipelines using SARIMA and Prophet.
+                Benchmarked models to predict business metrics with high accuracy.
+              </p>
+            </li>
+
+            <li class="timeline-item">
+              <h4 class="h4 timeline-item-title">Data Science Intern | Unified Mentor</h4>
+              <span>Sept 2024 - Oct 2024</span>
+              <p class="timeline-text">
+                Spearheaded the development of end-to-end machine learning models using Python and Scikit-learn,
+                focusing on feature engineering to improve model generalizability.
+              </p>
+            </li>
+
+            <li class="timeline-item">
+              <h4 class="h4 timeline-item-title">Research Intern | Sri Venkateswara College</h4>
+              <span>July 2024 - Sept 2024</span>
+              <p class="timeline-text">
+                Co-developed an NLP-based intelligent chatbot. Optimized the pipeline to enhance response quality by 20%
+                using Python.
+              </p>
+            </li>
+
+          </ol>
+        </section>
+
+        <section class="timeline">
+          <div class="title-wrapper">
+            <div class="icon-box">
+              <ion-icon name="school-outline"></ion-icon>
+            </div>
+            <h3 class="h3">Education</h3>
+          </div>
+
+          <ol class="timeline-list">
+            <li class="timeline-item">
+              <h4 class="h4 timeline-item-title">Sri Venkateswara College, Delhi University</h4>
+              <span>2022 — 2026</span>
+              <p class="timeline-text">B.Sc. (H) Mathematics | Grade: 7.24</p>
+            </li>
+            <li class="timeline-item">
+              <h4 class="h4 timeline-item-title">IIT Madras</h4>
+              <span>2023 — Present</span>
+              <p class="timeline-text">Diploma in Data Science | Grade: 8.09</p>
+            </li>
+          </ol>
+        </section>
+
         <section>
           <iframe src="{{ url_for('static', filename='assets/RESUME.pdf') }}" width="100%" height="800px"
             style="border: none;">
@@ -625,10 +739,6 @@
         </section>
 
       </article>
-
-
-
-
 
       <!--
         - #PORTFOLIO
