@@ -22,7 +22,7 @@ mail = Mail(app)
 # To update your site, just add your new LinkedIn Post URL here.
 LINKEDIN_POSTS = [
     {
-        "url": "https://www.linkedin.com/posts/gaurav-rayat_ai-medicalimaging-iitroorkee-share-7376244294661124096-92hx?utm_source=share&utm_medium=member_desktop&rcm=ACoAACweYCcBXDofGPpoKek1zAs54jRUDIM_AAA", 
+        "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7376244294661124096?collapsed=1", 
         "title": "AI in Medical Imaging: Revolutionizing Healthcare with Deep Learning"
     }
 ]
