@@ -28,6 +28,10 @@ LINKEDIN_POSTS = [
     {
         "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7351984929309671424?collapsed=1", 
         "title": "Internship Experience at QBE Consulting"
+    },
+    {
+        "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7315742381461446657?collapsed=1", 
+        "title": "GATE 2025 - Data Science and Artificial Intelligence (DA)"
     }
 ]
 
