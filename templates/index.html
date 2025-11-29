@@ -962,19 +962,40 @@
   </script>
 
   <!-- Chatbot Container -->
-  <div id="chatbot-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
-    <button id="chat-toggle"
-      style="padding: 10px 15px; border-radius: 50%; background: #4CAF50; color: white; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
-      💬
+  <<div id="chatbot-container">
+    
+    <button id="chat-toggle">
+      <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
     </button>
-    <div id="chat-box"
-      style="display: none; background: white; border: 1px solid #ddd; border-radius: 10px; width: 300px; height: 400px; overflow: hidden; box-shadow: 0 8px 16px rgba(0,0,0,0.2); flex-direction: column;">
-      <div style="background: #4CAF50; padding: 10px; color: white;">GAURAV's BOT</div>
-      <div id="chat-log" style="flex: 1; padding: 10px; overflow-y: auto; height: 300px;"></div>
-      <form id="chat-form" style="display: flex; border-top: 1px solid #ddd;">
-        <input type="text" id="chat-input" placeholder="Type here..." style="flex: 1; border: none; padding: 10px;">
-        <button type="submit" style="border: none; background: #4CAF50; color: white; padding: 10px;">▶️</button>
+
+    <div id="chat-box" class="chat-hidden">
+      
+      <div class="chat-header">
+        <div class="chat-title">
+           <span style="font-size: 20px;">🤖</span>
+           <div>
+             <h4 style="margin:0; font-size:14px; color:white;">Gaurav's AI</h4>
+             <span style="font-size:10px; color:#cfcfcf; display:block;">Online • Ask me anything!</span>
+           </div>
+        </div>
+        <button id="chat-close">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div id="chat-log">
+        <div class="chat-message bot-message">
+          Hi! 👋 I'm Gaurav's virtual assistant. Ask me about his projects, GATE rank, or skills!
+        </div>
+      </div>
+
+      <form id="chat-form">
+        <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off">
+        <button type="submit">
+          <ion-icon name="send"></ion-icon>
+        </button>
       </form>
+
     </div>
   </div>
   <script src="{{ url_for('static', filename='assets/js/chatbot.js') }}"></script>
