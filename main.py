@@ -1,6 +1,7 @@
-from flask import Flask, render_template,request,flash, jsonify
+from flask import Flask, render_template, request, flash, jsonify
 from flask_mail import Mail, Message
 import requests
+import os
 
 # create flask app
 app = Flask(__name__)
@@ -16,15 +17,38 @@ app.config['MAIL_PASSWORD'] = "qrcdulgqqyrxdwuk"
 app.config['MAIL_DEFAULT_SENDER'] = "gaurav.rayat2004@gmail.com"
 mail = Mail(app)
 
+def get_view_count():
+    """Reads and increments the view counter from a file."""
+    counter_file = "view_count.txt"
+    if not os.path.exists(counter_file):
+        with open(counter_file, "w") as f:
+            f.write("0")
+    
+    try:
+        with open(counter_file, "r+") as f:
+            content = f.read().strip()
+            count = int(content) if content else 0
+            count += 1
+            f.seek(0)
+            f.write(str(count))
+            f.truncate()
+            return count
+    except Exception as e:
+        print(f"Error updating view count: {e}")
+        return 0
+
 @app.route('/')
 def home():
-    return render_template('index.html')  # Must be inside templates/
+    views = get_view_count()
+    return render_template('index.html', views=views)
 
 @app.route('/send_messege', methods=['POST'])
 def send_message():
     fullname = request.form.get('fullname')
     email = request.form.get('email')
     message_content = request.form.get('message')
+
+    views = get_view_count() # Preserve view count logic on reload
 
     if fullname and email and message_content:
         try:
@@ -40,7 +64,7 @@ def send_message():
             flash("Failed to send the message. Please try again.", "danger")
     else:
         flash("All fields are required. Please fill in the form completely.", "warning")
-    return render_template('index.html')
+    return render_template('index.html', views=views)
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -84,3 +108,6 @@ def chat():
         return jsonify({"response": f"An error occurred while processing your request. Please try again later."})
 
     return jsonify({"response": reply})
+
+if __name__ == "__main__":
+    app.run(debug=True)
