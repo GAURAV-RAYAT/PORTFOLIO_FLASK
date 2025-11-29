@@ -81,6 +81,9 @@ Your goal is to answer visitor questions professionally based on the following r
 2. **Data Science Intern @ Unified Mentor** (Sept-Oct 2024): Developed ML models using Scikit-learn.
 3. **Research Intern @ Sri Venkateswara College** (July-Sept 2024): Co-developed an NLP Chatbot using Python.
 4. **Data Analyst Intern @ Studify Success** (Mar-Jun 2024): Created SQL/Python dashboards.
+5. **Mathematics Trainer @ Bhanzu** (Aug-Oct 2025): Taught math to international students.
+6. **Technical Team Member @ INSPIRE** (Sept 2024 - May 2025).
+7. **Member @ Brainiacs Data Science Hub** (Sept 2024 - May 2025).
 
 **PROJECTS:**
 - **Spam Message Detection:** NLP web app using Streamlit & TF-IDF.
