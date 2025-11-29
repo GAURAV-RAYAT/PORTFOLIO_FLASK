@@ -399,31 +399,6 @@
           </ul>
         </section>
 
-        <section class="blog-posts" style="margin-top: 30px;">
-          <h3 class="h3 blog-posts-title">Latest on LinkedIn</h3>
-          
-          <ul class="blog-posts-list" style="grid-template-columns: 1fr;">
-            {% for post in linkedin_posts %}
-            <li class="blog-post-item" style="background: white; border-radius: 12px; overflow: hidden;">
-              <div style="padding: 10px;">
-                <iframe src="{{ post.url }}" height="400" width="100%" frameborder="0" allowfullscreen="" title="Embedded post"></iframe>
-              </div>
-            </li>
-            {% endfor %}
-            
-            {% if not linkedin_posts %}
-            <li class="blog-post-item">
-                <div class="blog-content">
-                    <h3 class="h3 blog-item-title">Connect with me on LinkedIn!</h3>
-                    <p class="blog-text">Check out my latest updates and professional journey.</p>
-                    <a href="https://www.linkedin.com/in/gaurav-rayat/" target="_blank" style="color:var(--orange-yellow-crayola);">Visit Profile ↗</a>
-                </div>
-            </li>
-            {% endif %}
-          </ul>
-        </section>
-
-
         <div style="margin-top: 1em;">
           <h3 class="h3" style="margin-bottom: 0.5em;">Certifications</h3>
           <div class="certification-container">
@@ -554,6 +529,30 @@
             </figure>
           </div>
         </div>
+
+        <section class="blog-posts" style="margin-top: 30px;">
+          <h3 class="h3 blog-posts-title">Latest on LinkedIn</h3>
+          
+          <ul class="blog-posts-list" style="grid-template-columns: 1fr;">
+            {% for post in linkedin_posts %}
+            <li class="blog-post-item" style="background: white; border-radius: 12px; overflow: hidden;">
+              <div style="padding: 10px;">
+                <iframe src="{{ post.url }}" height="400" width="100%" frameborder="0" allowfullscreen="" title="Embedded post"></iframe>
+              </div>
+            </li>
+            {% endfor %}
+            
+            {% if not linkedin_posts %}
+            <li class="blog-post-item">
+                <div class="blog-content">
+                    <h3 class="h3 blog-item-title">Connect with me on LinkedIn!</h3>
+                    <p class="blog-text">Check out my latest updates and professional journey.</p>
+                    <a href="https://www.linkedin.com/in/gaurav-rayat/" target="_blank" style="color:var(--orange-yellow-crayola);">Visit Profile ↗</a>
+                </div>
+            </li>
+            {% endif %}
+          </ul>
+        </section>
 
         <!--
           - testimonials modal
