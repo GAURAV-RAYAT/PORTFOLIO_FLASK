@@ -17,38 +17,26 @@ app.config['MAIL_PASSWORD'] = "qrcdulgqqyrxdwuk"
 app.config['MAIL_DEFAULT_SENDER'] = "gaurav.rayat2004@gmail.com"
 mail = Mail(app)
 
-def get_view_count():
-    """Reads and increments the view counter from a file."""
-    counter_file = "/tmp/view_count.txt"
-    if not os.path.exists(counter_file):
-        with open(counter_file, "w") as f:
-            f.write("0")
-    
-    try:
-        with open(counter_file, "r+") as f:
-            content = f.read().strip()
-            count = int(content) if content else 0
-            count += 1
-            f.seek(0)
-            f.write(str(count))
-            f.truncate()
-            return count
-    except Exception as e:
-        print(f"Error updating view count: {e}")
-        return 0
+# --- LINKEDIN CONFIGURATION ---
+# Since we don't have a Company Page, we use this list.
+# To update your site, just add your new LinkedIn Post URL here.
+LINKEDIN_POSTS = [
+    {
+        "url": "https://www.linkedin.com/posts/gaurav-rayat_ai-medicalimaging-iitroorkee-share-7376244294661124096-92hx?utm_source=share&utm_medium=member_desktop&rcm=ACoAACweYCcBXDofGPpoKek1zAs54jRUDIM_AAA", 
+        "title": "AI in Medical Imaging: Revolutionizing Healthcare with Deep Learning"
+    }
+]
 
 @app.route('/')
 def home():
-    views = get_view_count()
-    return render_template('index.html', views=views)
+    # We pass the posts to the template
+    return render_template('index.html', linkedin_posts=LINKEDIN_POSTS)
 
 @app.route('/send_messege', methods=['POST'])
 def send_message():
     fullname = request.form.get('fullname')
     email = request.form.get('email')
     message_content = request.form.get('message')
-
-    views = get_view_count() # Preserve view count logic on reload
 
     if fullname and email and message_content:
         try:
@@ -61,10 +49,10 @@ def send_message():
             mail.send(msg)
             flash("Your message has been sent successfully!", "success")
         except Exception as e:
-            flash("Failed to send the message. Please try again.", "danger")
+            flash("Failed to send the message.", "danger")
     else:
-        flash("All fields are required. Please fill in the form completely.", "warning")
-    return render_template('index.html', views=views)
+        flash("All fields are required.", "warning")
+    return render_template('index.html', linkedin_posts=LINKEDIN_POSTS)
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -79,35 +67,19 @@ def chat():
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
             "Content-Type": "application/json"
         }
-
         payload = {
             "model": "openai/gpt-3.5-turbo",
             "messages": [
-                {
-                    "role": "system",
-                    "content": (
-                        "You are Gaurav Rayat's portfolio assistant. Respond professionally and helpfully ",
-                        "to questions related to his academic background, internships, and projects. Be concise and relevant.",
-                        "Completed Data Science intenship from Intellimark.AI in NOV 2025",
-                        "Pursuing Mathematics hons from Sri Venkateswara college of Delhi University."
-                    )
-                },
+                {"role": "system", "content": "You are Gaurav Rayat's portfolio assistant."},
                 {"role": "user", "content": user_message}
             ]
         }
-
-        response = requests.post(
-            "https://openrouter.ai/api/v1/chat/completions",
-            headers=headers,
-            json=payload
-        )
-        data = response.json()
-        reply = data["choices"][0]["message"]["content"].strip()
+        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+        reply = response.json()["choices"][0]["message"]["content"].strip()
     except Exception as e:
-        print("OpenRouter error:", e)
-        return jsonify({"response": f"An error occurred while processing your request. Please try again later."})
+        return jsonify({"response": "An error occurred."})
 
     return jsonify({"response": reply})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
