@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, flash, jsonify
 from flask_mail import Mail, Message
 import requests
 import os
+import time
+from datetime import datetime
 
 # create flask app
 app = Flask(__name__)
@@ -18,8 +20,6 @@ app.config['MAIL_DEFAULT_SENDER'] = "gaurav.rayat2004@gmail.com"
 mail = Mail(app)
 
 # --- LINKEDIN CONFIGURATION ---
-# Since we don't have a Company Page, we use this list.
-# To update your site, just add your new LinkedIn Post URL here.
 LINKEDIN_POSTS = [
     {
         "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7401467953118179329?collapsed=1", 
@@ -41,8 +41,51 @@ LINKEDIN_POSTS = [
 
 @app.route('/')
 def home():
-    # We pass the posts to the template
+    # 1. Get Visitor IP
+    if request.headers.getlist("X-Forwarded-For"):
+        visitor_ip = request.headers.getlist("X-Forwarded-For")[0]
+    else:
+        visitor_ip = request.remote_addr
+
+    # 2. Get Location & Log to File (No Email Alert)
+    try:
+        # Fetch location details
+        response = requests.get(f"http://ip-api.com/json/{visitor_ip}")
+        data = response.json()
+        city = data.get("city", "Unknown City")
+        country = data.get("country", "Unknown Country")
+        isp = data.get("isp", "Unknown ISP")
+        
+        # --- LOG TO FILE IN /tmp ---
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_entry = f"[{timestamp}] IP: {visitor_ip} | Loc: {city}, {country} | ISP: {isp}\n"
+        
+        # Write to /tmp/visitor_logs.txt (Safe for Vercel)
+        with open("/tmp/visitor_logs.txt", "a") as log_file:
+            log_file.write(log_entry)
+            
+        print(f"✅ Logged Visitor: {log_entry.strip()}")
+        
+    except Exception as e:
+        print(f"Visitor Tracking Error: {e}")
+
     return render_template('index.html', linkedin_posts=LINKEDIN_POSTS)
+
+@app.route('/logs')
+def view_logs():
+    """Secret route to view your logs online"""
+    try:
+        if os.path.exists("/tmp/visitor_logs.txt"):
+            with open("/tmp/visitor_logs.txt", "r") as f:
+                content = f.read()
+            # Display logs in reverse order (newest first)
+            lines = content.strip().split('\n')
+            reversed_content = '\n'.join(reversed(lines))
+            return f"<h3>Visitor Logs (Newest First)</h3><pre>{reversed_content}</pre>"
+        else:
+            return "No logs found yet."
+    except Exception as e:
+        return f"Error reading logs: {e}"
 
 @app.route('/send_messege', methods=['POST'])
 def send_message():
@@ -66,10 +109,7 @@ def send_message():
         flash("All fields are required.", "warning")
     return render_template('index.html', linkedin_posts=LINKEDIN_POSTS)
 
-# ... (Keep your existing imports)
-
 # --- RESUME DATA CONTEXT ---
-# This gives the bot all the info it needs to answer correctly.
 SYSTEM_PROMPT = """
 You are the AI Assistant for Gaurav Rayat's personal portfolio. 
 Your goal is to answer visitor questions professionally based on the following resume data:
