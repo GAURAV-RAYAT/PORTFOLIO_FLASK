@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request, flash, jsonify, url_for
+from flask import Flask, redirect, render_template, request, flash, jsonify, url_for, session
 from flask_mail import Mail, Message
 import requests
 import os
@@ -93,24 +93,47 @@ def home():
 
     return render_template('index.html', linkedin_posts=LINKEDIN_POSTS)
 
-@app.route('/logs')
+# --- SECURE LOGS ROUTE ---
+@app.route('/logs', methods=['GET', 'POST'])
 def view_logs():
-    """Route to view logs from the Database"""
-    if not client:
-        return "<h3>Database not connected. Check MONGO_URI.</h3>"
+    # 1. Handle Logout Logic if accessed via /logout
+    if request.path == '/logout':
+        session.pop('log_authorized', None)
+        return redirect(url_for('home'))
+
+    # 2. Handle Password Submission
+    error = None
+    if request.method == 'POST':
+        password = request.form.get('password')
+        # Check against Environment Variable (or hardcoded for now)
+        admin_pass = os.environ.get("ADMIN_PASSWORD", "admin123") 
+        
+        if password == admin_pass:
+            session['log_authorized'] = True
+            return redirect(url_for('view_logs'))
+        else:
+            error = "Incorrect Password!"
+
+    # 3. Check Authorization
+    if not session.get('log_authorized'):
+        return render_template('logs.html', authenticated=False, error=error)
+
+    # 4. Fetch Logs if Authorized
+    logs_data = []
+    if client:
+        try:
+            # Fetch last 50 logs, sorted by newest first
+            cursor = visitor_collection.find().sort("_id", -1).limit(50)
+            logs_data = list(cursor)
+        except Exception as e:
+            print(f"DB Error: {e}")
     
-    try:
-        # Fetch last 50 logs, sorted by newest first
-        logs = visitor_collection.find().sort("_id", -1).limit(50)
-        
-        html_output = "<h3>Visitor Logs (Last 50)</h3><ul style='font-family: monospace;'>"
-        for log in logs:
-            html_output += f"<li>[{log.get('timestamp')}] <b>{log.get('ip')}</b> - {log.get('city')}, {log.get('country')} ({log.get('isp')})</li>"
-        html_output += "</ul>"
-        
-        return html_output
-    except Exception as e:
-        return f"Error reading database: {e}"
+    return render_template('logs.html', authenticated=True, logs=logs_data)
+
+@app.route('/logout')
+def logout():
+    session.pop('log_authorized', None)
+    return redirect(url_for('view_logs'))
 
 @app.route('/send_messege', methods=['POST'])
 def send_message():
