@@ -207,12 +207,30 @@
           </li>
 
         </ul>
-
       </nav>
-
-
-
-
+      <section class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          <div class="alert-icon">
+            {% if category == 'success' %}
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            {% elif category == 'danger' %}
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            {% else %}
+            <ion-icon name="information-circle-outline"></ion-icon>
+            {% endif %}
+          </div>
+          <p>{{ message }}</p>
+          <span class="alert-close" onclick="this.parentElement.style.display='none';">
+            <ion-icon name="close-outline"></ion-icon>
+          </span>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+      </section>
 
       <!--
         - #ABOUT
@@ -1066,30 +1084,6 @@
               src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d9481.401406607025!2d77.26285624683189!3d28.535404016721348!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1748589727899!5m2!1sen!2sin"
               width="400" height="500" loading="lazy"></iframe>
           </figure>
-        </section>
-
-        <section class="flash-messages">
-          {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-          {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">
-            <div class="alert-icon">
-              {% if category == 'success' %}
-              <ion-icon name="checkmark-circle-outline"></ion-icon>
-              {% elif category == 'danger' %}
-              <ion-icon name="alert-circle-outline"></ion-icon>
-              {% else %}
-              <ion-icon name="information-circle-outline"></ion-icon>
-              {% endif %}
-            </div>
-            <p>{{ message }}</p>
-            <span class="alert-close" onclick="this.parentElement.style.display='none';">
-              <ion-icon name="close-outline"></ion-icon>
-            </span>
-          </div>
-          {% endfor %}
-          {% endif %}
-          {% endwith %}
         </section>
 
         <section class="contact-form">

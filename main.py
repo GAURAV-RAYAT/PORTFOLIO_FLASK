@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, jsonify
+from flask import Flask, redirect, render_template, request, flash, jsonify, url_for
 from flask_mail import Mail, Message
 import requests
 import os
@@ -129,10 +129,10 @@ def send_message():
             mail.send(msg)
             flash("Your message has been sent successfully!", "success")
         except Exception as e:
-            flash("Failed to send the message.", "danger")
+            pass
     else:
         flash("All fields are required.", "warning")
-    return render_template('index.html', linkedin_posts=LINKEDIN_POSTS)
+    return redirect(url_for('home'))
 
 # --- RESUME DATA CONTEXT ---
 SYSTEM_PROMPT = """
