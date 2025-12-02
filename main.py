@@ -7,8 +7,8 @@ from pymongo import MongoClient
 
 # create flask app
 app = Flask(__name__)
-app.secret_key = "c996df478d4c087e03029a962b7f016e"
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "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")
+app.secret_key = os.environ.get("SECRET_KEY")
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 
 # --- DATABASE CONNECTION (MongoDB) ---
 # We get the connection string from Vercel Environment Variables
@@ -30,8 +30,8 @@ except Exception as e:
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME", "gaurav.rayat2004@gmail.com")
-app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD", "qrcdulgqqyrxdwuk")
+app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 mail = Mail(app)
 
@@ -121,9 +121,9 @@ def send_message():
     if fullname and email and message_content:
         try:
             msg = Message(
-                subject=f"Contact Form Message from {fullname}",
+                subject=f"Contact Form Message from {fullname} | gauravrayat.me",
                 sender=email,
-                recipients=["gaurav.rayat2004@gmail.com", "1722024@svc.du.ac.in"],
+                recipients=["gaurav.rayat2004@gmail.com"],
                 body=f"Name: {fullname}\nEmail: {email}\nMessage: {message_content}"
             )
             mail.send(msg)
