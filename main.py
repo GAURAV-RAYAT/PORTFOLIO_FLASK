@@ -22,6 +22,10 @@ mail = Mail(app)
 # To update your site, just add your new LinkedIn Post URL here.
 LINKEDIN_POSTS = [
     {
+        "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7401467953118179329?collapsed=1", 
+        "title": "I love delhi, but soul belongs to Himachal."
+    },
+    {
         "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7376244294661124096?collapsed=1", 
         "title": "AI in Medical Imaging: Revolutionizing Healthcare with Deep Learning"
     },
