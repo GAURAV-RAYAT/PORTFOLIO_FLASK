@@ -94,46 +94,95 @@ def home():
     return render_template('index.html', linkedin_posts=LINKEDIN_POSTS)
 
 # --- SECURE LOGS ROUTE ---
+# --- SECURE AUTH HELPER ---
+def is_admin():
+    return session.get('log_authorized')
+
+# --- PASSWORD MANAGER ROUTES ---
+@app.route('/pass', methods=['GET', 'POST'])
+def pass_manager():
+    # 1. Security Check (Reuse the same password logic as /logs)
+    if request.method == 'POST' and 'password' in request.form:
+        password = request.form.get('password')
+        admin_pass = os.environ.get("ADMIN_PASSWORD", "admin123")
+        
+        if password == admin_pass:
+            session['log_authorized'] = True
+            return redirect(url_for('pass_manager'))
+        else:
+            return render_template('passwords.html', authenticated=False, error="Incorrect Password!")
+
+    if not is_admin():
+        return render_template('passwords.html', authenticated=False)
+
+    # 2. Fetch Passwords
+    passwords = []
+    if client:
+        try:
+            # Sort by newest first
+            passwords = list(pass_collection.find().sort("_id", -1))
+        except Exception as e:
+            print(f"DB Error: {e}")
+
+    return render_template('passwords.html', authenticated=True, passwords=passwords)
+
+@app.route('/add_pass', methods=['POST'])
+def add_pass():
+    if not is_admin(): return redirect(url_for('pass_manager'))
+    
+    custom_id = request.form.get('custom_id')
+    password_val = request.form.get('password_val')
+    comment = request.form.get('comment')
+    
+    if client and custom_id and password_val:
+        pass_collection.insert_one({
+            "custom_id": custom_id,
+            "password": password_val,
+            "comment": comment
+        })
+    return redirect(url_for('pass_manager'))
+
+@app.route('/delete_pass/<id>')
+def delete_pass(id):
+    if not is_admin(): return redirect(url_for('pass_manager'))
+    
+    if client:
+        try:
+            pass_collection.delete_one({"_id": ObjectId(id)})
+        except Exception as e:
+            print(f"Delete Error: {e}")
+            
+    return redirect(url_for('pass_manager'))
+
+# --- LOGS ROUTE (Reused Auth) ---
 @app.route('/logs', methods=['GET', 'POST'])
 def view_logs():
-    # 1. Handle Logout Logic if accessed via /logout
     if request.path == '/logout':
         session.pop('log_authorized', None)
         return redirect(url_for('home'))
 
-    # 2. Handle Password Submission
-    error = None
     if request.method == 'POST':
         password = request.form.get('password')
-        # Check against Environment Variable (or hardcoded for now)
         admin_pass = os.environ.get("ADMIN_PASSWORD", "admin123") 
-        
         if password == admin_pass:
             session['log_authorized'] = True
             return redirect(url_for('view_logs'))
-        else:
-            error = "Incorrect Password!"
 
-    # 3. Check Authorization
-    if not session.get('log_authorized'):
-        return render_template('logs.html', authenticated=False, error=error)
+    if not is_admin():
+        return render_template('logs.html', authenticated=False)
 
-    # 4. Fetch Logs if Authorized
     logs_data = []
     if client:
         try:
-            # Fetch last 50 logs, sorted by newest first
-            cursor = visitor_collection.find().sort("_id", -1).limit(50)
-            logs_data = list(cursor)
-        except Exception as e:
-            print(f"DB Error: {e}")
+            logs_data = list(visitor_collection.find().sort("_id", -1).limit(50))
+        except Exception: pass
     
     return render_template('logs.html', authenticated=True, logs=logs_data)
 
 @app.route('/logout')
 def logout():
     session.pop('log_authorized', None)
-    return redirect(url_for('view_logs'))
+    return redirect(url_for('home'))
 
 @app.route('/send_messege', methods=['POST'])
 def send_message():
