@@ -150,6 +150,15 @@ def send_message():
                 body=f"Name: {fullname}\nEmail: {email}\nMessage: {message_content}"
             )
             mail.send(msg)
+
+            auto_reply = Message(
+                subject="Thank you for contacting me! | Gaurav Rayat",
+                sender=app.config['MAIL_USERNAME'],
+                recipients=[email],
+                body=f"Hi {fullname},\n\nThank you for reaching out! I have received your message and will get back to you as soon as possible.\n\nBest regards,\nGaurav Rayat"
+            )
+            mail.send(auto_reply)
+
             flash("Your message has been sent successfully!", "success")
         except Exception as e:
             pass
