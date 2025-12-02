@@ -2,24 +2,40 @@ from flask import Flask, render_template, request, flash, jsonify
 from flask_mail import Mail, Message
 import requests
 import os
-import time
 from datetime import datetime
+from pymongo import MongoClient
 
 # create flask app
 app = Flask(__name__)
 app.secret_key = "c996df478d4c087e03029a962b7f016e"
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "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")
+
+# --- DATABASE CONNECTION (MongoDB) ---
+# We get the connection string from Vercel Environment Variables
+MONGO_URI = os.environ.get("MONGO_URI")
+try:
+    if MONGO_URI:
+        client = MongoClient(MONGO_URI)
+        db = client.get_database("portfolio_db") # Database Name
+        visitor_collection = db.visitor_logs     # Collection Name
+        print("✅ Connected to MongoDB!")
+    else:
+        client = None
+        print("⚠️ MONGO_URI not found. Database logging disabled.")
+except Exception as e:
+    client = None
+    print(f"❌ Database Connection Error: {e}")
 
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = "gaurav.rayat2004@gmail.com"
-app.config['MAIL_PASSWORD'] = "qrcdulgqqyrxdwuk"
-app.config['MAIL_DEFAULT_SENDER'] = "gaurav.rayat2004@gmail.com"
+app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME", "gaurav.rayat2004@gmail.com")
+app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD", "qrcdulgqqyrxdwuk")
+app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 mail = Mail(app)
 
-# --- LINKEDIN CONFIGURATION ---
+# --- LINKEDIN POSTS ---
 LINKEDIN_POSTS = [
     {
         "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7401467953118179329?collapsed=1", 
@@ -47,24 +63,30 @@ def home():
     else:
         visitor_ip = request.remote_addr
 
-    # 2. Get Location & Log to File (No Email Alert)
+    # 2. Get Location & Save to DB
     try:
         # Fetch location details
         response = requests.get(f"http://ip-api.com/json/{visitor_ip}")
-        data = response.json()
-        city = data.get("city", "Unknown City")
-        country = data.get("country", "Unknown Country")
-        isp = data.get("isp", "Unknown ISP")
+        loc_data = response.json()
+        city = loc_data.get("city", "Unknown City")
+        country = loc_data.get("country", "Unknown Country")
+        isp = loc_data.get("isp", "Unknown ISP")
         
-        # --- LOG TO FILE IN /tmp ---
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        log_entry = f"[{timestamp}] IP: {visitor_ip} | Loc: {city}, {country} | ISP: {isp}\n"
         
-        # Write to /tmp/visitor_logs.txt (Safe for Vercel)
-        with open("/tmp/visitor_logs.txt", "a") as log_file:
-            log_file.write(log_entry)
-            
-        print(f"✅ Logged Visitor: {log_entry.strip()}")
+        # --- LOG TO MONGODB ---
+        if client:
+            log_entry = {
+                "ip": visitor_ip,
+                "city": city,
+                "country": country,
+                "isp": isp,
+                "timestamp": timestamp
+            }
+            visitor_collection.insert_one(log_entry)
+            print(f"✅ Saved to DB: {city}, {country}")
+        else:
+            print("⚠️ Database not connected. Log skipped.")
         
     except Exception as e:
         print(f"Visitor Tracking Error: {e}")
@@ -73,19 +95,22 @@ def home():
 
 @app.route('/logs')
 def view_logs():
-    """Secret route to view your logs online"""
+    """Route to view logs from the Database"""
+    if not client:
+        return "<h3>Database not connected. Check MONGO_URI.</h3>"
+    
     try:
-        if os.path.exists("/tmp/visitor_logs.txt"):
-            with open("/tmp/visitor_logs.txt", "r") as f:
-                content = f.read()
-            # Display logs in reverse order (newest first)
-            lines = content.strip().split('\n')
-            reversed_content = '\n'.join(reversed(lines))
-            return f"<h3>Visitor Logs (Newest First)</h3><pre>{reversed_content}</pre>"
-        else:
-            return "No logs found yet."
+        # Fetch last 50 logs, sorted by newest first
+        logs = visitor_collection.find().sort("_id", -1).limit(50)
+        
+        html_output = "<h3>Visitor Logs (Last 50)</h3><ul style='font-family: monospace;'>"
+        for log in logs:
+            html_output += f"<li>[{log.get('timestamp')}] <b>{log.get('ip')}</b> - {log.get('city')}, {log.get('country')} ({log.get('isp')})</li>"
+        html_output += "</ul>"
+        
+        return html_output
     except Exception as e:
-        return f"Error reading logs: {e}"
+        return f"Error reading database: {e}"
 
 @app.route('/send_messege', methods=['POST'])
 def send_message():
@@ -175,7 +200,6 @@ def chat():
         )
         response_data = response.json()
         
-        # Check for errors in response
         if "choices" in response_data:
             reply = response_data["choices"][0]["message"]["content"].strip()
         else:
