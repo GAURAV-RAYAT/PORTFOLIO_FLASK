@@ -52,6 +52,10 @@ LINKEDIN_POSTS = [
     {
         "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7315742381461446657?collapsed=1", 
         "title": "GATE 2025 - Data Science and Artificial Intelligence (DA)"
+    },
+    {
+        "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7404000483184427010?collapsed=1", 
+        "title": "Internship Completion at Intellimark.AI"
     }
 ]
 
