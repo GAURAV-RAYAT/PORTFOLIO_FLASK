@@ -8,11 +8,13 @@ from bson.objectid import ObjectId
 
 # create flask app
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY")
+
+# ✅ FIX: Added a fallback string so it never crashes if env var is missing
+app.secret_key = os.environ.get("SECRET_KEY", "default_fallback_secret_key_12345")
+
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 
 # --- DATABASE CONNECTION (MongoDB) ---
-# We get the connection string from Vercel Environment Variables
 MONGO_URI = os.environ.get("MONGO_URI")
 try:
     if MONGO_URI:
@@ -100,7 +102,6 @@ def home():
 
     return render_template('index.html', linkedin_posts=LINKEDIN_POSTS)
 
-# --- SECURE LOGS ROUTE ---
 # --- SECURE AUTH HELPER ---
 def is_admin():
     return session.get('log_authorized')
@@ -151,7 +152,7 @@ def delete_pass(id):
     if not is_admin(): return redirect(url_for('pass_manager'))
     if client:
         try:
-            # ✅ FIXED: ObjectId allows deletion to work
+            # ✅ ObjectId allows deletion to work
             pass_collection.delete_one({"_id": ObjectId(id)})
         except Exception as e:
             print(f"Delete Error: {e}")
