@@ -2153,101 +2153,50 @@ textarea.form-input::-webkit-resizer { display: none; }
 }
 
 /*-----------------------------------*\
-  #LIGHT THEME
-\*-----------------------------------*/
-
-body.light-theme {
-  --bg-gradient-onyx: linear-gradient(
-    to bottom right, 
-    hsl(0, 0%, 95%) 3%, 
-    hsl(0, 0%, 100%) 97%
-  );
-  
-  --bg-gradient-jet: linear-gradient(
-    to bottom right, 
-    hsla(0, 0%, 100%, 0.251) 0%, 
-    hsla(0, 0%, 100%, 0) 100%
-  ), hsl(0, 0%, 96%);
-
-  --bg-gradient-yellow-1: linear-gradient(
-    to bottom right, 
-    hsl(45, 100%, 71%) 0%, 
-    hsla(36, 100%, 69%, 0) 50%
-  );
-
-  --bg-gradient-yellow-2: linear-gradient(
-    135deg, 
-    hsla(45, 100%, 71%, 0.251) 0%, 
-    hsla(35, 100%, 68%, 0) 59.86%
-  ), hsl(0, 0%, 96%);
-
-  --border-gradient-onyx: linear-gradient(
-    to bottom right, 
-    hsl(0, 0%, 90%) 0%, 
-    hsla(0, 0%, 90%, 0) 50%
-  );
-
-  /* Light Theme Colors */
-  --jet: hsl(0, 0%, 90%);
-  --onyx: hsl(0, 0%, 93%);
-  --eerie-black-1: hsl(0, 0%, 95%);
-  --eerie-black-2: hsl(0, 0%, 98%);
-  --smoky-black: hsl(0, 0%, 96%); /* Main Background */
-  
-  --white-1: hsl(0, 0%, 20%); /* Main Text (Dark) */
-  --white-2: hsl(0, 0%, 30%); /* Sub Text */
-  
-  --orange-yellow-crayola: hsl(45, 100%, 45%); /* Darker Gold for visibility */
-  --vegas-gold: hsl(45, 54%, 45%);
-  
-  --light-gray: hsl(0, 0%, 40%);
-  --light-gray-70: hsla(0, 0%, 40%, 0.7);
-  
-  --shadow-1: -4px 8px 24px hsla(0, 0%, 0%, 0.05);
-  --shadow-2: 0 16px 30px hsla(0, 0%, 0%, 0.05);
-  --shadow-5: 0 24px 80px hsla(0, 0%, 0%, 0.05);
-}
-
-/*-----------------------------------*\
-  #LIGHT THEME (PREMIUM)
+  #PREMIUM LIGHT THEME
 \*-----------------------------------*/
 
 body.light-theme {
   /* --- BACKGROUNDS --- */
-  --smoky-black: #f9f9f9;       /* Main Page Background (Off-white) */
-  --eerie-black-1: #ffffff;     /* Card Background (Pure White) */
-  --eerie-black-2: #f2f2f2;     /* Sidebar/Inner Sections (Light Grey) */
-  --jet: #e5e5e5;               /* Borders/Separators */
-  --onyx: #ffffff;              /* Form Inputs */
+  --smoky-black: #F3F4F6;       /* Main Page Background (Clean Cool Grey) */
+  --eerie-black-1: #FFFFFF;     /* Card Background (Pure White) */
+  --eerie-black-2: #FFFFFF;     /* Inner Cards (Pure White) */
+  
+  /* --- BORDERS & SEPARATORS --- */
+  --jet: #E5E7EB;               /* Light Grey Lines */
+  --onyx: #F9FAFB;              /* Form Input Backgrounds */
+  --border-gradient-onyx: #E5E7EB; /* Solid clean border for cards */
 
   /* --- TEXT COLORS --- */
-  --white-1: #222222;           /* Main Headings (Almost Black) */
-  --white-2: #555555;           /* Paragraph Text (Dark Grey) */
-  --light-gray: #777777;        /* Subtitles */
-  --light-gray-70: rgba(0,0,0,0.6);
+  --white-1: #111827;           /* Main Headings (Almost Black) */
+  --white-2: #374151;           /* Subheadings (Dark Charcoal) */
+  --light-gray: #4B5563;        /* Body Text (Medium Grey) */
+  --light-gray-70: rgba(75, 85, 99, 0.8);
 
-  /* --- ACCENTS --- */
-  /* Darker Gold for better contrast on white */
-  --orange-yellow-crayola: #cfa61f; 
-  --vegas-gold: #d4af37;
+  /* --- ACCENTS (The Fix for "Bad Colors") --- */
+  /* We use a Rich Amber/Gold instead of pale yellow for contrast */
+  --orange-yellow-crayola: #D97706; 
+  --vegas-gold: #B45309; 
+  --text-gradient-yellow: linear-gradient(to right, #D97706, #B45309);
 
-  /* --- GRADIENTS (Subtle Grey/White instead of Dark) --- */
+  /* --- GRADIENTS --- */
+  /* Subtle white gradient for icons/avatars */
   --bg-gradient-onyx: linear-gradient(
     to bottom right, 
-    #f0f0f0 3%, 
-    #ffffff 97%
+    #FFFFFF 0%, 
+    #F3F4F6 100%
   );
   
   --bg-gradient-jet: linear-gradient(
     to bottom right, 
-    rgba(0,0,0,0.05) 0%, 
-    rgba(0,0,0,0) 100%
-  ), #f9f9f9;
+    rgba(255,255,255, 0.9) 0%, 
+    rgba(255,255,255, 0.5) 100%
+  ), #FFFFFF;
 
-  --border-gradient-onyx: #dddddd; /* Clean solid border */
-
-  /* --- SHADOWS (Soft Modern Drop Shadows) --- */
-  --shadow-1: 0 4px 12px rgba(0,0,0,0.05);
-  --shadow-2: 0 8px 24px rgba(0,0,0,0.08);
-  --shadow-5: 0 16px 40px rgba(0,0,0,0.1);
+  /* --- SHADOWS (Modern "Float" Effect) --- */
+  --shadow-1: 0 1px 3px rgba(0,0,0,0.1);
+  --shadow-2: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-3: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --shadow-4: 0 20px 25px -5px rgba(0,0,0,0.1);
+  --shadow-5: 0 25px 50px -12px rgba(0,0,0,0.15);
 }
