@@ -1188,10 +1188,18 @@
   </script>
 
   <script>
-    // Time updater
+    // Time updater (Fixed to Indian Standard Time)
     function updateTime() {
       const now = new Date();
-      document.getElementById("user-time").textContent = "🕒 " + now.toLocaleTimeString();
+      const options = { 
+        timeZone: 'Asia/Kolkata', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit',
+        hour12: true 
+      };
+      const timeString = now.toLocaleTimeString('en-US', options);
+      document.getElementById("user-time").textContent = "🕒 " + timeString + " IST";
     }
     setInterval(updateTime, 1000);
     updateTime();
