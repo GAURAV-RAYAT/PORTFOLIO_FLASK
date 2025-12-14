@@ -157,7 +157,6 @@ for (let i = 0; i < navigationLinks.length; i++) {
 
   });
 }
-
 /* ----------------------------------- */
 /* #THEME TOGGLE FUNCTIONALITY        */
 /* ----------------------------------- */
@@ -166,21 +165,29 @@ const themeBtn = document.getElementById("theme-toggle");
 const themeIcon = document.getElementById("theme-icon");
 const body = document.body;
 
-// Check Local Storage for theme preference on load
+// 1. DEFAULT TO DARK MODE
+// Only switch to light if explicitly stored in LocalStorage
 if (localStorage.getItem("theme") === "light") {
   body.classList.add("light-theme");
   themeIcon.setAttribute("name", "sunny-outline");
   themeIcon.style.color = "#ff8c00"; 
+} else {
+  // Force Dark Mode by default (ensure class is removed)
+  body.classList.remove("light-theme");
+  themeIcon.setAttribute("name", "moon-outline");
+  themeIcon.style.color = "#ffdb70";
 }
 
 themeBtn.addEventListener("click", function () {
   body.classList.toggle("light-theme");
 
   if (body.classList.contains("light-theme")) {
+    // User switched to Light
     localStorage.setItem("theme", "light");
     themeIcon.setAttribute("name", "sunny-outline");
     themeIcon.style.color = "#ff8c00";
   } else {
+    // User switched to Dark
     localStorage.setItem("theme", "dark");
     themeIcon.setAttribute("name", "moon-outline");
     themeIcon.style.color = "#ffdb70";
