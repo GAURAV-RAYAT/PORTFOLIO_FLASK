@@ -43,6 +43,10 @@ mail = Mail(app)
 # --- LINKEDIN POSTS ---
 LINKEDIN_POSTS = [
     {
+        "url": "https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7405847066469552128?collapsed=1", 
+        "title": "GATE DA & CS Content"
+    },
+    {
         "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7404000483184427010?collapsed=1", 
         "title": "Internship Completion at Intellimark.AI"
     },
