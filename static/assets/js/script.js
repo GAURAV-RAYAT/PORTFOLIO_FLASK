@@ -157,3 +157,32 @@ for (let i = 0; i < navigationLinks.length; i++) {
 
   });
 }
+
+/* ----------------------------------- */
+/* #THEME TOGGLE FUNCTIONALITY        */
+/* ----------------------------------- */
+
+const themeBtn = document.getElementById("theme-toggle");
+const themeIcon = document.getElementById("theme-icon");
+const body = document.body;
+
+// Check Local Storage for theme preference on load
+if (localStorage.getItem("theme") === "light") {
+  body.classList.add("light-theme");
+  themeIcon.setAttribute("name", "sunny-outline");
+  themeIcon.style.color = "#ff8c00"; 
+}
+
+themeBtn.addEventListener("click", function () {
+  body.classList.toggle("light-theme");
+
+  if (body.classList.contains("light-theme")) {
+    localStorage.setItem("theme", "light");
+    themeIcon.setAttribute("name", "sunny-outline");
+    themeIcon.style.color = "#ff8c00";
+  } else {
+    localStorage.setItem("theme", "dark");
+    themeIcon.setAttribute("name", "moon-outline");
+    themeIcon.style.color = "#ffdb70";
+  }
+});

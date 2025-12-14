@@ -3,3 +3,4 @@ flask_mail
 requests
 pymongo
 dnspython
+bson

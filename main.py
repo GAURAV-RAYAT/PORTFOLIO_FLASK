@@ -4,6 +4,7 @@ import requests
 import os
 from datetime import datetime
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 # create flask app
 app = Flask(__name__)
@@ -16,12 +17,14 @@ MONGO_URI = os.environ.get("MONGO_URI")
 try:
     if MONGO_URI:
         client = MongoClient(MONGO_URI)
-        db = client.get_database("portfolio_db") # Database Name
-        visitor_collection = db.visitor_logs     # Collection Name
+        db = client.get_database("portfolio_db")
+        visitor_collection = db.visitor_logs
+        message_collection = db.messages
+        pass_collection = db.passwords
         print("✅ Connected to MongoDB!")
     else:
         client = None
-        print("⚠️ MONGO_URI not found. Database logging disabled.")
+        print("⚠️ MONGO_URI not found.")
 except Exception as e:
     client = None
     print(f"❌ Database Connection Error: {e}")
@@ -101,11 +104,10 @@ def is_admin():
 # --- PASSWORD MANAGER ROUTES ---
 @app.route('/pass', methods=['GET', 'POST'])
 def pass_manager():
-    # 1. Security Check (Reuse the same password logic as /logs)
+    # Login Logic
     if request.method == 'POST' and 'password' in request.form:
         password = request.form.get('password')
         admin_pass = os.environ.get("ADMIN_PASSWORD", "admin123")
-        
         if password == admin_pass:
             session['log_authorized'] = True
             return redirect(url_for('pass_manager'))
@@ -115,11 +117,9 @@ def pass_manager():
     if not is_admin():
         return render_template('passwords.html', authenticated=False)
 
-    # 2. Fetch Passwords
     passwords = []
     if client:
         try:
-            # Sort by newest first
             passwords = list(pass_collection.find().sort("_id", -1))
         except Exception as e:
             print(f"DB Error: {e}")
@@ -145,13 +145,12 @@ def add_pass():
 @app.route('/delete_pass/<id>')
 def delete_pass(id):
     if not is_admin(): return redirect(url_for('pass_manager'))
-    
     if client:
         try:
+            # ✅ FIXED: ObjectId allows deletion to work
             pass_collection.delete_one({"_id": ObjectId(id)})
         except Exception as e:
             print(f"Delete Error: {e}")
-            
     return redirect(url_for('pass_manager'))
 
 # --- LOGS ROUTE (Reused Auth) ---

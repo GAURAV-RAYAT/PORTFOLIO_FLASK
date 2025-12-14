@@ -11,7 +11,7 @@
   <meta name="description"
     content="Portfolio of Gaurav Rayat, a Data Scientist and Mathematics Undergraduate from Delhi University & IIT Madras. Specializing in Machine Learning, Python, SQL, and Time-Series Forecasting.">
   <meta name="keywords"
-    content="Gaurav Rayat, Data Scientist, Data Analyst, Machine Learning, Python Developer, SQL, Power BI, Delhi University, IIT Madras, Portfolio">
+    content="Gaurav Rayat, Data Scientist, Data Analyst, Machine Learning, Python Developer, SQL, Power BI, Delhi University, IIT Madras, Portfolio, Sri Venkateswara college">
   <meta name="robots" content="index, follow">
   <meta name="language" content="English">
   <meta name="author" content="Gaurav Rayat">
@@ -87,8 +87,23 @@
   justify-content: space-between;
   align-items: center;
   z-index: 999;
+  position: sticky; top: 0;
 ">
     <div id="user-location">📍 Locating...</div>
+
+    <button id="theme-toggle" style="
+        background: none; 
+        border: none; 
+        cursor: pointer; 
+        font-size: 18px; 
+        padding: 5px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        transition: transform 0.3s ease;
+    " title="Toggle Theme">
+      <ion-icon name="moon-outline" id="theme-icon" style="color: #ffdb70;"></ion-icon>
+    </button>
 
     <div id="view-counter" style="
       color: #ffdb70; 
