@@ -43,6 +43,14 @@ mail = Mail(app)
 # --- LINKEDIN POSTS ---
 LINKEDIN_POSTS = [
     {
+        "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7417996972684615680?collapsed=1", 
+        "title": "Higgsfield"
+    },
+    {
+        "url": "https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7417447314690080768?collapsed=1", 
+        "title": "n8n"
+    },
+    {
         "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7411469722132590593?collapsed=1", 
         "title": "NEW-YEAR POST"
     },
