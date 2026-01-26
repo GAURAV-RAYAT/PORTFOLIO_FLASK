@@ -33,10 +33,10 @@ jobs:
           LINKEDIN_COOKIES: ${{ secrets.LINKEDIN_COOKIES }}
         run: |
           python scripts/fetch_linkedin_posts.py
-
+          
       - name: Commit and push changes
         run: |
-          if git status --porcelain | grep .; then
+          if git status --porcelain | grep -q .; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add data/linkedin_posts.json
