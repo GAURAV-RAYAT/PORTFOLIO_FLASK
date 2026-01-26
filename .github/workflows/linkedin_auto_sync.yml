@@ -2,8 +2,12 @@ name: Auto Sync LinkedIn Posts
 
 on:
   schedule:
+    # Every Monday at 11:00 AM IST (05:30 UTC)
     - cron: "30 5 * * 1"
   workflow_dispatch:
+
+permissions:
+  contents: write   # REQUIRED to push commits
 
 jobs:
   sync-linkedin:
@@ -18,10 +22,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install Playwright and dependencies
         run: |
           pip install playwright
           python -m playwright install chromium
+          python -m playwright install-deps
 
       - name: Run LinkedIn scraper
         env:
