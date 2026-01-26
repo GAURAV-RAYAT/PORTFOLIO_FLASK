@@ -1,0 +1,42 @@
+name: Auto Sync LinkedIn Posts
+
+on:
+  schedule:
+    - cron: "0 9 * * 0"
+  workflow_dispatch:
+
+jobs:
+  sync-linkedin:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install playwright
+          python -m playwright install chromium
+
+      - name: Run LinkedIn scraper
+        env:
+          LINKEDIN_COOKIES: ${{ secrets.LINKEDIN_COOKIES }}
+        run: |
+          python scripts/fetch_linkedin_posts.py
+
+      - name: Commit and push changes
+        run: |
+          if git status --porcelain | grep .; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add data/linkedin_posts.json
+            git commit -m "chore: auto-sync LinkedIn posts"
+            git push
+          else
+            echo "No changes detected"
+          fi
