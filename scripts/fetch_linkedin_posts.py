@@ -5,8 +5,8 @@ import os
 
 LINKEDIN_PROFILE_URL = "https://www.linkedin.com/in/gaurav-rayat/"
 
-DATA_FILE = "linkedin_posts.json"
-COOKIE_FILE = "linkedin_cookies.json"
+DATA_FILE = "data/linkedin_posts.json"
+COOKIE_FILE = "./linkedin_cookies.json"
 
 def load_existing_posts():
     if not os.path.exists(DATA_FILE):
