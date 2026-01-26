@@ -41,7 +41,6 @@ app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 mail = Mail(app)
 
-
 @app.route('/')
 def home():
     # 1. Get Visitor IP
