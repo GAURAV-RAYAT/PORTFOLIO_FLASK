@@ -3,3 +3,7 @@ flask_mail
 requests
 pymongo
 dnspython
+playwright
+os
+json
+datetime

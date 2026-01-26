@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+import json
 
 # create flask app
 app = Flask(__name__)
@@ -40,33 +41,6 @@ app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 mail = Mail(app)
 
-# --- LINKEDIN POSTS ---
-LINKEDIN_POSTS = [
-    {
-        "url": "https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7405847066469552128?collapsed=1", 
-        "title": "GATE DA & CS Content"
-    },
-    {
-        "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7404000483184427010?collapsed=1", 
-        "title": "Internship Completion at Intellimark.AI"
-    },
-    {
-        "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7401467953118179329?collapsed=1", 
-        "title": "I love delhi, but soul belongs to Himachal."
-    },
-    {
-        "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7376244294661124096?collapsed=1", 
-        "title": "AI in Medical Imaging: Revolutionizing Healthcare with Deep Learning"
-    },
-    {
-        "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7351984929309671424?collapsed=1", 
-        "title": "Internship Experience at QBE Consulting"
-    },
-    {
-        "url": "https://www.linkedin.com/embed/feed/update/urn:li:share:7315742381461446657?collapsed=1", 
-        "title": "GATE 2025 - Data Science and Artificial Intelligence (DA)"
-    }
-]
 
 @app.route('/')
 def home():
@@ -104,8 +78,23 @@ def home():
     except Exception as e:
         print(f"Visitor Tracking Error: {e}")
 
-    return render_template('index.html', linkedin_posts=LINKEDIN_POSTS)
+    # Load LinkedIn posts from JSON
+    linkedin_posts = []
+    try:
+        with open("data/linkedin_posts.json", "r", encoding="utf-8") as f:
+            linkedin_posts = json.load(f)
 
+        # newest first
+        linkedin_posts = sorted(
+            linkedin_posts,
+            key=lambda x: x.get("date", ""),
+            reverse=True
+        )
+    except Exception as e:
+        print(f"LinkedIn posts load error: {e}")
+
+    return render_template('index.html', linkedin_posts=linkedin_posts)
+    
 # --- SECURE AUTH HELPER ---
 def is_admin():
     return session.get('log_authorized')
