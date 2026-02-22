@@ -14,7 +14,7 @@ import fitz  # PyMuPDF
 import re
 from langchain_openai import ChatOpenAI
 from langchain_community.document_loaders import PyMuPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document
 
 # create flask app
