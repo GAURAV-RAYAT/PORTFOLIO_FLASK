@@ -290,7 +290,7 @@ def chat():
         }
         
         payload = {
-            "model": "openai/gpt-3.5-turbo",
+            "model": "openai/gpt-4o-mini",
             "messages": [
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_message}
