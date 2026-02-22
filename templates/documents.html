@@ -1,23 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Document Vault | Gaurav Rayat</title>
-    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/style.css') }}">
-</head>
-<body style="background: var(--smoky-black); color: white; padding: 50px;">
-    <h2>Secure Document Upload</h2>
-    <form action="/upload-doc" class="dropzone" id="my-dropzone" 
-          style="background: var(--eerie-black-2); border: 2px dashed var(--orange-yellow-crayola); border-radius: 12px;">
-    </form>
 
-    <h3 style="margin-top: 40px;">Your Saved Documents</h3>
-    <ul>
-        {% for doc in documents %}
-            <li><a href="{{ doc.url }}" target="_blank" style="color: var(--orange-yellow-crayola);">{{ doc.filename }}</a> ({{ doc.timestamp }})</li>
-        {% endfor %}
-    </ul>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document Vault | Gaurav Rayat</title>
+
+  <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logo.ico') }}" type="image/x-icon">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/style.css') }}">
+  
+  <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* Custom styles for the Document Vault */
+    .dropzone {
+      background: var(--eerie-black-2) !important;
+      border: 2px dashed var(--orange-yellow-crayola) !important;
+      border-radius: 14px !important;
+      color: var(--white-2) !important;
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 30px;
+    }
+
+    .dz-message {
+      font-weight: 500;
+      color: var(--light-gray);
+    }
+
+    .doc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .doc-card {
+      background: var(--eerie-black-2);
+      border: 1px solid var(--jet);
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+      transition: var(--transition-1);
+      position: relative;
+    }
+
+    .doc-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--orange-yellow-crayola);
+    }
+
+    .doc-icon {
+      font-size: 45px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .doc-name {
+      color: var(--white-2);
+      font-size: var(--fs-7);
+      font-weight: var(--fw-500);
+      margin-bottom: 15px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .btn-action {
+      font-size: var(--fs-8);
+      font-weight: var(--fw-600);
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .view-link { color: var(--orange-yellow-crayola); }
+    .delete-btn { color: #ff4d4d; background: none; border: none; }
+
+    .back-home {
+      display: inline-block;
+      color: var(--orange-yellow-crayola);
+      margin-bottom: 20px;
+      font-size: var(--fs-6);
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <article class="container" style="padding: 40px 20px;">
+      
+      <header>
+        <a href="{{ url_for('home') }}" class="back-home">← Back to Portfolio</a>
+        <h2 class="h2 article-title">Document Vault</h2>
+      </header>
+
+      <section class="upload-section">
+        <form action="/upload-doc" class="dropzone" id="document-upload-form">
+          <div class="dz-message">
+            Drag and drop useful documents here or click to upload.
+          </div>
+        </form>
+      </section>
+
+      <section class="docs-list">
+        <h3 class="h3" style="margin-bottom: 20px; color: var(--white-2);">Your Files</h3>
+        
+        <div class="doc-grid">
+          {% for doc in documents %}
+          <div class="doc-card">
+            <span class="doc-icon">
+              {% if '.pdf' in doc.filename.lower() %} 📄 {% else %} 🖼️ {% endif %}
+            </span>
+            <p class="doc-name">{{ doc.filename }}</p>
+            
+            <div class="card-actions">
+              <a href="{{ doc.url }}" target="_blank" class="btn-action view-link">View</a>
+              <button onclick="confirmDelete('{{ doc._id }}')" class="btn-action delete-btn">Delete</button>
+            </div>
+          </div>
+          {% else %}
+          <p style="color: var(--light-gray);">No documents found. Upload your first file above.</p>
+          {% endfor %}
+        </div>
+      </section>
+
+    </article>
+  </main>
+
+  <script>
+    // Refresh page after successful upload to show new file
+    Dropzone.options.documentUploadForm = {
+      init: function() {
+        this.on("success", function() {
+          setTimeout(() => { location.reload(); }, 1000);
+        });
+      }
+    };
+
+    // Confirm before deleting
+    function confirmDelete(docId) {
+      if (confirm("Are you sure you want to delete this document?")) {
+        window.location.href = "/delete-doc/" + docId;
+      }
+    }
+  </script>
+
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 </body>
+
 </html>
