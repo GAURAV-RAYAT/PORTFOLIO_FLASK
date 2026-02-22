@@ -399,9 +399,9 @@ def delete_document(id):
 
 # -- API --
 def get_trained_context():
-    """Parses Resume and LinkedIn PDFs to create a knowledge base."""
+    # This gets the absolute path to the directory where main.py sits
     base_path = os.path.dirname(os.path.abspath(__file__))
-    # Define your local PDF paths
+    
     files = [
         os.path.join(base_path, "static", "assets", "RESUME.pdf"),
         os.path.join(base_path, "static", "assets", "LINKEDIN_SUMMARY.pdf")
@@ -410,14 +410,17 @@ def get_trained_context():
     all_content = ""
     for file_path in files:
         if os.path.exists(file_path):
-            loader = PyMuPDFLoader(file_path)
-            docs = loader.load()
-            for doc in docs:
-                all_content += doc.page_content + "\n"
-    
-    # Split text into chunks so the LLM can process it efficiently
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-    return text_splitter.split_text(all_content)
+            try:
+                loader = PyMuPDFLoader(file_path)
+                docs = loader.load()
+                for doc in docs:
+                    all_content += doc.page_content + "\n"
+            except Exception as e:
+                print(f"Error loading {file_path}: {e}")
+        else:
+            print(f"File not found: {file_path}")
+            
+    return all_content
 
 @app.route("/api/ask", methods=["POST"])
 def api_ask():
