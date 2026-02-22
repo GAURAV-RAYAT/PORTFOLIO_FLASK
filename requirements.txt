@@ -7,3 +7,7 @@ playwright
 cloudinary
 flask-bcrypt
 pymupdf
+langchain
+langchain-openai
+langchain-community
+pymupdf

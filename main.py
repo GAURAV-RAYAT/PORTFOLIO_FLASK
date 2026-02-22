@@ -12,6 +12,10 @@ from flask import jsonify
 from flask_bcrypt import Bcrypt
 import fitz  # PyMuPDF
 import re
+from langchain_openai import ChatOpenAI
+from langchain_community.document_loaders import PyMuPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.docstore.document import Document
 
 # create flask app
 app = Flask(__name__)
@@ -392,6 +396,59 @@ def delete_document(id):
             print(f"Delete Error: {e}")
             
     return redirect(url_for('documents_page'))
+
+# -- API --
+def get_trained_context():
+    """Parses Resume and LinkedIn PDFs to create a knowledge base."""
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    # Define your local PDF paths
+    files = [
+        os.path.join(base_path, "static", "assets", "RESUME.pdf"),
+        os.path.join(base_path, "static", "assets", "LINKEDIN_SUMMARY.pdf")
+    ]
+    
+    all_content = ""
+    for file_path in files:
+        if os.path.exists(file_path):
+            loader = PyMuPDFLoader(file_path)
+            docs = loader.load()
+            for doc in docs:
+                all_content += doc.page_content + "\n"
+    
+    # Split text into chunks so the LLM can process it efficiently
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+    return text_splitter.split_text(all_content)
+
+@app.route("/api/ask", methods=["POST"])
+def api_ask():
+    data = request.get_json()
+    user_query = data.get("question")
+    
+    if not user_query:
+        return jsonify({"error": "No question provided"}), 400
+
+    try:
+        # 1. Get the context from your PDFs
+        context_chunks = get_trained_context()
+        context_string = "\n".join(context_chunks)
+
+        # 2. Use your OpenRouter API via LangChain
+        # We use ChatOpenAI but point it to OpenRouter's base URL
+        llm = ChatOpenAI(
+            model="openai/gpt-4o-mini", # Optimized for Vercel performance
+            openai_api_key=os.environ.get("OPENROUTER_API_KEY"),
+            base_url="https://openrouter.ai/api/v1"
+        )
+
+        system_prompt = f"You are Gaurav Rayat's AI agent. Use this context to answer: {context_string}"
+        response = llm.invoke([
+            ("system", system_prompt),
+            ("human", user_query)
+        ])
+
+        return jsonify({"answer": response.content})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.errorhandler(404)
 def page_not_found(e):
