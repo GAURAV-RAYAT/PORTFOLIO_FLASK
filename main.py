@@ -363,6 +363,20 @@ def upload_document():
         return jsonify({"url": file_url}), 200
     return "Upload failed", 400
 
+@app.route('/delete-doc/<id>')
+def delete_document(id):
+    if not is_admin(): 
+        return redirect(url_for('view_logs'))
+    
+    if client:
+        try:
+            # Delete record from MongoDB
+            db.document_logs.delete_one({"_id": ObjectId(id)})
+        except Exception as e:
+            print(f"Delete Error: {e}")
+            
+    return redirect(url_for('documents_page'))
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
