@@ -453,6 +453,31 @@ def api_ask():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# -- telegram--
+# Add your Telegram Token from Environment Variables
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+
+@app.route('/api/telegram', methods=['POST'])
+def telegram_webhook():
+    update = request.get_json()
+    
+    if "message" in update and "text" in update["message"]:
+        chat_id = update["message"]["chat"]["id"]
+        user_text = update["message"]["text"]
+        
+        # 1. Get response from your existing LangChain logic
+        # We reuse your get_trained_context logic here
+        ai_response = api_ask(user_text) # Helper function
+        
+        # 2. Send the response back to Telegram
+        send_message_url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+        requests.post(send_message_url, json={
+            "chat_id": chat_id,
+            "text": ai_response
+        })
+        
+    return "ok", 200
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
