@@ -422,36 +422,35 @@ def get_trained_context():
             
     return all_content
 
-@app.route("/api/ask", methods=["POST"])
-def api_ask():
-    data = request.get_json()
-    user_query = data.get("question")
-    
-    if not user_query:
-        return jsonify({"error": "No question provided"}), 400
-
+def get_ai_answer(user_query):
+    """Shared logic for both Terminal and Telegram."""
     try:
         # 1. Get the context from your PDFs
         context_chunks = get_trained_context()
         context_string = "\n".join(context_chunks)
 
-        # 2. Use your OpenRouter API via LangChain
-        # We use ChatOpenAI but point it to OpenRouter's base URL
+        # 2. Setup LLM (Ensure OPENROUTER_API_KEY is in Env Vars)
         llm = ChatOpenAI(
-            model="openai/gpt-4o-mini", # Optimized for Vercel performance
+            model="openai/gpt-4o-mini",
             openai_api_key=os.environ.get("OPENROUTER_API_KEY"),
             base_url="https://openrouter.ai/api/v1"
         )
 
-        system_prompt = f"You are Gaurav Rayat's AI agent. Use this context to answer: {context_string}"
+        system_prompt = f"You are Gaurav Rayat's AI agent. Use this context: {context_string}"
         response = llm.invoke([
             ("system", system_prompt),
             ("human", user_query)
         ])
-
-        return jsonify({"answer": response.content})
+        return response.content
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return f"Error: {str(e)}"
+
+@app.route("/api/ask", methods=["POST"])
+def api_ask_route(): # Renamed slightly to avoid confusion
+    data = request.get_json()
+    user_query = data.get("question")
+    answer = get_ai_answer(user_query)
+    return jsonify({"answer": answer})
 
 # -- telegram--
 # Add your Telegram Token from Environment Variables
@@ -460,21 +459,15 @@ TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 @app.route('/api/telegram', methods=['POST'])
 def telegram_webhook():
     update = request.get_json()
-    
     if "message" in update and "text" in update["message"]:
         chat_id = update["message"]["chat"]["id"]
         user_text = update["message"]["text"]
         
-        # 1. Get response from your existing LangChain logic
-        # We reuse your get_trained_context logic here
-        ai_response = api_ask(user_text) # Helper function
+        # ✅ Call the helper function, not the route function
+        ai_response = get_ai_answer(user_text) 
         
-        # 2. Send the response back to Telegram
-        send_message_url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-        requests.post(send_message_url, json={
-            "chat_id": chat_id,
-            "text": ai_response
-        })
+        send_url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+        requests.post(send_url, json={"chat_id": chat_id, "text": ai_response})
         
     return "ok", 200
 
