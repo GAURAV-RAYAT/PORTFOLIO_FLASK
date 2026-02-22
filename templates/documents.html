@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document Vault | Gaurav Rayat</title>
+    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/style.css') }}">
+</head>
+<body style="background: var(--smoky-black); color: white; padding: 50px;">
+    <h2>Secure Document Upload</h2>
+    <form action="/upload-doc" class="dropzone" id="my-dropzone" 
+          style="background: var(--eerie-black-2); border: 2px dashed var(--orange-yellow-crayola); border-radius: 12px;">
+    </form>
+
+    <h3 style="margin-top: 40px;">Your Saved Documents</h3>
+    <ul>
+        {% for doc in documents %}
+            <li><a href="{{ doc.url }}" target="_blank" style="color: var(--orange-yellow-crayola);">{{ doc.filename }}</a> ({{ doc.timestamp }})</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

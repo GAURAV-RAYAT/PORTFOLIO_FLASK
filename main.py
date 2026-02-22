@@ -6,6 +6,9 @@ from datetime import datetime
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 import json
+import cloudinary
+import cloudinary.uploader
+from flask import jsonify
 
 # create flask app
 app = Flask(__name__)
@@ -40,6 +43,13 @@ app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 mail = Mail(app)
+
+# Configure Cloudinary (Add these to Vercel Env Vars)
+cloudinary.config(
+  cloud_name = os.environ.get("CLOUDINARY_NAME"),
+  api_key = os.environ.get("CLOUDINARY_API_KEY"),
+  api_secret = os.environ.get("CLOUDINARY_API_SECRET")
+)
 
 @app.route('/')
 def home():
@@ -318,6 +328,40 @@ def sitemap():
     response = make_response(content)
     response.headers["Content-Type"] = "application/xml"
     return response
+
+# New Route to view the document page
+@app.route('/documents')
+def documents_page():
+    if not is_admin(): 
+        return redirect(url_for('view_logs')) 
+    
+    # Fetch existing docs from MongoDB
+    docs = []
+    if client:
+        docs = list(db.document_logs.find().sort("_id", -1))
+    return render_template('documents.html', authenticated=True, documents=docs)
+
+# New Route to handle the drag-and-drop upload
+@app.route('/upload-doc', methods=['POST'])
+def upload_document():
+    if not is_admin():
+        return jsonify({"error": "Unauthorized"}), 403
+
+    file = request.files.get('file')
+    if file:
+        # Upload to Cloudinary
+        upload_result = cloudinary.uploader.upload(file, resource_type="auto")
+        file_url = upload_result.get("secure_url")
+
+        # Save record to your existing portfolio_db
+        if client:
+            db.document_logs.insert_one({
+                "filename": file.filename,
+                "url": file_url,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            })
+        return jsonify({"url": file_url}), 200
+    return "Upload failed", 400
 
 @app.errorhandler(404)
 def page_not_found(e):
