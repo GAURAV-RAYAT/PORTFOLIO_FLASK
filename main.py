@@ -10,6 +10,8 @@ import cloudinary
 import cloudinary.uploader
 from flask import jsonify
 from flask_bcrypt import Bcrypt
+import fitz  # PyMuPDF
+import re
 
 # create flask app
 app = Flask(__name__)
@@ -238,42 +240,39 @@ def send_message():
         flash("All fields are required.", "warning")
     return redirect(url_for('home'))
 
+def get_beautified_resume():
+    pdf_path = "static/assets/RESUME.pdf"
+    
+    try:
+        doc = fitz.open(pdf_path)
+        full_text = ""
+        for page in doc:
+            full_text += page.get_text("text")
+        
+        # --- Beautification Logic ---
+        # 1. Remove excessive newlines
+        clean_text = re.sub(r'\n+', '\n', full_text)
+        # 2. Remove multiple spaces
+        clean_text = re.sub(r' +', ' ', clean_text)
+        # 3. Strip whitespace from start/end
+        clean_text = clean_text.strip()
+        
+        return clean_text
+    except Exception as e:
+        print(f"Error parsing PDF: {e}")
+        return "Resume data currently unavailable."
+    
+
 # --- RESUME DATA CONTEXT ---
-SYSTEM_PROMPT = """
-You are the AI Assistant for Gaurav Rayat's personal portfolio. 
-Your goal is to answer visitor questions professionally based on the following resume data:
-
-**PROFILE:**
-- Name: Gaurav Rayat
-- Education: B.Sc. (H) Mathematics at Sri Venkateswara College, Delhi University (2026) | CGPA: 7.24
-- Additional: Diploma in Data Science from IIT Madras (Pursuing) | CGPA: 8.09
-- Key Achievement: Qualified GATE 2025 in Data Science & AI with All India Rank (AIR) 2177.
-
-**EXPERIENCE:**
-1. **Data Science Intern @ Intellimark.AI** (Sept-Nov 2025): Built automated time-series forecasting pipelines using SARIMA, Prophet, and XGBoost.
-2. **Data Science Intern @ Unified Mentor** (Sept-Oct 2024): Developed ML models using Scikit-learn.
-3. **Research Intern @ Sri Venkateswara College** (July-Sept 2024): Co-developed an NLP Chatbot using Python.
-4. **Data Analyst Intern @ Studify Success** (Mar-Jun 2024): Created SQL/Python dashboards.
-5. **Mathematics Trainer @ Bhanzu** (Aug-Oct 2025): Taught math to international students.
-6. **Technical Team Member @ INSPIRE** (Sept 2024 - May 2025).
-7. **Member @ Brainiacs Data Science Hub** (Sept 2024 - May 2025).
-
-**PROJECTS:**
-- **Spam Message Detection:** NLP web app using Streamlit & TF-IDF.
-- **Iris Classification:** End-to-end ML app using SVM.
-- **Telegram Chatbot:** Generative AI bot using Flask & OpenAI API.
-- **Delhi Housing Price Prediction:** Regression models for property pricing.
-
-**SKILLS:**
-- Languages: Python (Advanced), SQL (Advanced).
-- Libraries: Pandas, NumPy, Scikit-learn, Flask, Matplotlib.
-- Tools: Power BI, Tableau, Git, Excel.
-
-**BEHAVIOR:**
-- Keep answers concise and friendly.
-- If asked for contact info, provide: gaurav.rayat2004@gmail.com.
-- Do not make up facts not listed here.
-"""
+resume_context = get_beautified_resume()
+SYSTEM_PROMPT = f"""
+    You are the AI Assistant for Gaurav Rayat. 
+    Use the following resume data to answer questions:
+    
+    {resume_context}
+    
+    Behavior: Keep answers concise and only use the provided facts.
+    """
 
 @app.route("/chat", methods=["POST"])
 def chat():
