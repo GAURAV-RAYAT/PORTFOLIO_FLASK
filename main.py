@@ -9,12 +9,22 @@ import json
 import cloudinary
 import cloudinary.uploader
 from flask import jsonify
+from flask_bcrypt import Bcrypt
 
 # create flask app
 app = Flask(__name__)
 
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SECURE=True, # Ensure your site has HTTPS (Vercel does this automatically)
+    SESSION_COOKIE_SAMESITE='Lax',
+)
+
+# Initialize Bcrypt
+bcrypt = Bcrypt(app)
+
 # ✅ FIX: Added a fallback string so it never crashes if env var is missing
-app.secret_key = os.environ.get("SECRET_KEY", "default_fallback_secret_key_12345")
+app.secret_key = os.environ.get("SECRET_KEY")
 
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 
@@ -111,11 +121,13 @@ def is_admin():
 # --- PASSWORD MANAGER ROUTES ---
 @app.route('/pass', methods=['GET', 'POST'])
 def pass_manager():
-    # Login Logic
     if request.method == 'POST' and 'password' in request.form:
         password = request.form.get('password')
-        admin_pass = os.environ.get("ADMIN_PASSWORD", "admin123")
-        if password == admin_pass:
+        # Retrieve the hashed admin password from environment variables
+        admin_pass_hashed = os.environ.get("ADMIN_PASSWORD_HASH")
+        
+        # ✅ Securely check the hashed password
+        if admin_pass_hashed and bcrypt.check_password_hash(admin_pass_hashed, password):
             session['log_authorized'] = True
             return redirect(url_for('pass_manager'))
         else:
@@ -163,25 +175,30 @@ def delete_pass(id):
 # --- LOGS ROUTE (Reused Auth) ---
 @app.route('/logs', methods=['GET', 'POST'])
 def view_logs():
-    if request.path == '/logout':
-        session.pop('log_authorized', None)
-        return redirect(url_for('home'))
-
+    # Handle login attempt
     if request.method == 'POST':
         password = request.form.get('password')
-        admin_pass = os.environ.get("ADMIN_PASSWORD", "admin123") 
-        if password == admin_pass:
+        # Retrieve the hash you generated earlier from your Vercel Env Vars
+        admin_pass_hashed = os.environ.get("ADMIN_PASSWORD_HASH")
+        
+        # ✅ Use bcrypt to verify the password against the hash
+        if admin_pass_hashed and bcrypt.check_password_hash(admin_pass_hashed, password):
             session['log_authorized'] = True
             return redirect(url_for('view_logs'))
+        else:
+            return render_template('logs.html', authenticated=False, error="Incorrect Password!")
 
+    # Check if user is already authorized
     if not is_admin():
         return render_template('logs.html', authenticated=False)
 
+    # Fetch logs if authorized
     logs_data = []
     if client:
         try:
             logs_data = list(visitor_collection.find().sort("_id", -1).limit(50))
-        except Exception: pass
+        except Exception as e:
+            print(f"Log Fetch Error: {e}")
     
     return render_template('logs.html', authenticated=True, logs=logs_data)
 
