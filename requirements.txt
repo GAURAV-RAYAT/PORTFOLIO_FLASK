@@ -6,3 +6,4 @@ dnspython
 playwright
 cloudinary
 flask-bcrypt
+pymupdf
