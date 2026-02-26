@@ -32,6 +32,6 @@ def get_client():
 
 def get_collection(collection_name):
     """Get a specific collection"""
-    if db:
+    if db is not None:
         return db[collection_name]
     return None

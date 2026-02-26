@@ -23,7 +23,7 @@ def documents_page():
     
     # Fetch existing docs from MongoDB
     docs = []
-    if get_client():
+    if get_client() is not None:
         doc_collection = get_collection("document_logs")
         docs = list(doc_collection.find().sort("_id", -1))
     
@@ -41,7 +41,7 @@ def upload_document():
         file_url = upload_result.get("secure_url")
 
         # Save record to MongoDB
-        if get_client():
+        if get_client() is not None:
             doc_collection = get_collection("document_logs")
             doc_collection.insert_one({
                 "filename": file.filename,
@@ -57,7 +57,7 @@ def delete_document(id):
     if not is_admin(): 
         return redirect(url_for('auth.view_logs'))
     
-    if get_client():
+    if get_client() is not None:
         try:
             doc_collection = get_collection("document_logs")
             doc_collection.delete_one({"_id": ObjectId(id)})

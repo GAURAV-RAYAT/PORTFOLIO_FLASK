@@ -18,7 +18,7 @@ def home():
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
         # --- LOG TO MONGODB ---
-        if get_client():
+        if get_client() is not None:
             log_entry = {
                 "ip": visitor_ip,
                 "city": loc_data["city"],

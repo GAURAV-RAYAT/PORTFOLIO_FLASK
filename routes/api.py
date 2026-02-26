@@ -11,7 +11,7 @@ def save_message_to_db(user_message, ai_response, source="web", user_ip="", tele
     """Save conversation to MongoDB from any source"""
     try:
         chat_collection = get_collection("ai_messages")
-        if chat_collection:
+        if chat_collection is not None:
             chat_document = {
                 "user_message": user_message,
                 "ai_response": ai_response,

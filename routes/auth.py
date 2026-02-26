@@ -28,7 +28,7 @@ def pass_manager():
         return render_template('passwords.html', authenticated=False)
 
     passwords = []
-    if get_client():
+    if get_client() is not None:
         try:
             pass_collection = get_collection("passwords")
             passwords = list(pass_collection.find().sort("_id", -1))
@@ -46,7 +46,7 @@ def add_pass():
     password_val = request.form.get('password_val')
     comment = request.form.get('comment')
     
-    if get_client() and custom_id and password_val:
+    if get_client() is not None and custom_id and password_val:
         pass_collection = get_collection("passwords")
         pass_collection.insert_one({
             "custom_id": custom_id,
@@ -60,7 +60,7 @@ def delete_pass(id):
     if not is_admin(): 
         return redirect(url_for('auth.pass_manager'))
     
-    if get_client():
+    if get_client() is not None:
         try:
             pass_collection = get_collection("passwords")
             pass_collection.delete_one({"_id": ObjectId(id)})
@@ -89,7 +89,7 @@ def view_logs():
 
     # Fetch logs if authorized
     logs_data = []
-    if get_client():
+    if get_client() is not None:
         try:
             visitor_collection = get_collection("visitor_logs")
             logs_data = list(visitor_collection.find().sort("_id", -1).limit(50))

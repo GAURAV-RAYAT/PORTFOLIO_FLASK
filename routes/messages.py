@@ -69,7 +69,7 @@ def get_messages_count():
     """API endpoint to get message count"""
     try:
         chat_collection = get_collection("ai_messages")
-        if chat_collection:
+        if chat_collection is not None:
             total_count = chat_collection.count_documents({})
             
             # Count by source
