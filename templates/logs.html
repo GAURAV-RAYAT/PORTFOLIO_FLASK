@@ -6,6 +6,7 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/my-avatar.png') }}" type="image/x-icon">
     <title>Visitor Logs | Secure Access</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/theme.css') }}">
     <style>
         /* Dark Theme Styling */
         body {
@@ -108,8 +109,16 @@
     {% else %}
         <div class="header-bar">
             <h3 style="margin:0; color:white;">Visitor History</h3>
-            <a href="/"><button class="logout-btn">← Home</button></a>
-            <a href="/logout"><button class="logout-btn">Logout</button></a>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode" title="Dark/Light Mode">
+                    <div class="theme-toggle-slider">
+                        <span class="theme-toggle-icon sun">☀️</span>
+                        <span class="theme-toggle-icon moon">🌙</span>
+                    </div>
+                </button>
+                <a href="/"><button class="logout-btn">← Home</button></a>
+                <a href="/logout"><button class="logout-btn">Logout</button></a>
+            </div>
         </div>
 
         <div class="table-wrapper">
@@ -141,5 +150,6 @@
     {% endif %}
 </div>
 
+<script src="{{ url_for('static', filename='assets/js/theme.js') }}"></script>
 </body>
 </html>

@@ -2151,3 +2151,147 @@ textarea.form-input::-webkit-resizer { display: none; }
 .alert-close:hover {
   opacity: 1;
 }
+
+
+/*-----------------------------------*\
+  #DARK MODE THEME
+\*-----------------------------------*/
+
+/* Dark mode color variables */
+html.dark-mode {
+  --bg-gradient-onyx: linear-gradient(
+    to bottom right, 
+    hsl(240, 8%, 12%) 3%, 
+    hsl(240, 5%, 8%) 97%
+  );
+  --bg-gradient-jet: linear-gradient(
+    to bottom right, 
+    hsla(240, 8%, 10%, 0.251) 0%, 
+    hsla(240, 8%, 6%, 0) 100%
+  ), hsl(240, 8%, 7%);
+  --jet: hsl(240, 5%, 10%);
+  --onyx: hsl(240, 5%, 12%);
+  --eerie-black-1: hsl(240, 8%, 6%);
+  --eerie-black-2: hsl(240, 8%, 5%);
+  --smoky-black: hsl(240, 8%, 3%);
+  --white-1: hsl(240, 10%, 95%);
+  --white-2: hsl(240, 10%, 90%);
+  --orange-yellow-crayola: hsl(45, 100%, 65%);
+  --light-gray: hsl(240, 8%, 60%);
+  --light-gray-70: hsla(240, 8%, 60%, 0.7);
+  --shadow-1: -4px 8px 24px hsla(0, 0%, 0%, 0.5);
+  --shadow-2: 0 16px 30px hsla(0, 0%, 0%, 0.5);
+  --shadow-3: 0 16px 40px hsla(0, 0%, 0%, 0.5);
+  --shadow-4: 0 25px 50px hsla(0, 0%, 0%, 0.3);
+  --shadow-5: 0 24px 80px hsla(0, 0%, 0%, 0.5);
+}
+
+/* Light mode - if you want explicit light mode variables */
+html.light-mode {
+  --bg-gradient-onyx: linear-gradient(
+    to bottom right, 
+    hsl(240, 1%, 85%) 3%, 
+    hsl(240, 1%, 75%) 97%
+  );
+  --bg-gradient-jet: linear-gradient(
+    to bottom right, 
+    hsla(240, 1%, 70%, 0.251) 0%, 
+    hsla(240, 1%, 65%, 0) 100%
+  ), hsl(240, 1%, 72%);
+  --jet: hsl(0, 0%, 80%);
+  --onyx: hsl(240, 1%, 85%);
+  --eerie-black-1: hsl(240, 1%, 90%);
+  --eerie-black-2: hsl(240, 1%, 92%);
+  --smoky-black: hsl(0, 0%, 95%);
+  --white-1: hsl(0, 0%, 10%);
+  --white-2: hsl(0, 0%, 20%);
+  --orange-yellow-crayola: hsl(45, 100%, 52%);
+  --light-gray: hsl(0, 0%, 30%);
+  --light-gray-70: hsla(0, 0%, 30%, 0.7);
+  --shadow-1: -4px 8px 24px hsla(0, 0%, 0%, 0.1);
+  --shadow-2: 0 16px 30px hsla(0, 0%, 0%, 0.1);
+  --shadow-3: 0 16px 40px hsla(0, 0%, 0%, 0.1);
+  --shadow-4: 0 25px 50px hsla(0, 0%, 0%, 0.05);
+  --shadow-5: 0 24px 80px hsla(0, 0%, 0%, 0.1);
+}
+
+/* Theme toggle button styling */
+.theme-toggle {
+  position: relative;
+  width: 60px;
+  height: 34px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 34px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.theme-toggle:hover {
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  transform: translateY(-2px);
+}
+
+.theme-toggle-slider {
+  background: white;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  position: absolute;
+  left: 4px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.theme-toggle-icon {
+  position: absolute;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.theme-toggle-icon.sun {
+  color: #f6d365;
+  left: 8px;
+  opacity: 1;
+}
+
+.theme-toggle-icon.moon {
+  color: #4c63d2;
+  right: 8px;
+  opacity: 0;
+}
+
+/* Active state - when dark mode is on */
+html.dark-mode .theme-toggle {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+html.dark-mode .theme-toggle-slider {
+  left: 30px;
+  background: white;
+}
+
+html.dark-mode .theme-toggle-icon.sun {
+  opacity: 0;
+}
+
+html.dark-mode .theme-toggle-icon.moon {
+  opacity: 1;
+}
+
+/* Smooth transition for entire page */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Stop transitions on initial load */
+html.no-transition * {
+  transition: none !important;
+}

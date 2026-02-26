@@ -10,6 +10,7 @@
   <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/logo.ico') }}" type="image/x-icon">
 
   <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/theme.css') }}">
   
   <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
@@ -129,7 +130,15 @@
         <a href="{{ url_for('home') }}" class="back-home">
           <ion-icon name="arrow-back-outline"></ion-icon> Back to Portfolio
         </a>
-        <h2 class="h2 article-title">Private Document Vault</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+          <h2 class="h2 article-title" style="margin: 0; flex: 1;">Private Document Vault</h2>
+          <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode" title="Dark/Light Mode">
+            <div class="theme-toggle-slider">
+              <span class="theme-toggle-icon sun">☀️</span>
+              <span class="theme-toggle-icon moon">🌙</span>
+            </div>
+          </button>
+        </div>
       </header>
 
       <section class="upload-section">
@@ -201,6 +210,7 @@
 
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <script src="{{ url_for('static', filename='assets/js/theme.js') }}"></script>
 </body>
 
 </html>

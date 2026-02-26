@@ -38,6 +38,7 @@
   <link rel="shortcut icon" href="{{ url_for('static', filename='assets/images/my-avatar.png') }}" type="image/x-icon">
 
   <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/theme.css') }}">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -102,6 +103,14 @@
       <span id="visits">...</span>
       <span>Views</span>
     </div>
+
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode" title="Dark/Light Mode">
+      <div class="theme-toggle-slider">
+        <span class="theme-toggle-icon sun">☀️</span>
+        <span class="theme-toggle-icon moon">🌙</span>
+      </div>
+    </button>
 
     <div id="user-time">🕒 Loading time...</div>
   </div>
@@ -1298,6 +1307,59 @@
           });
       }
       updateCounter();
+    </script>
+
+    <!-- Theme Toggle Script -->
+    <script>
+      // Detect user's system preference on page load
+      function initTheme() {
+        const html = document.documentElement;
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        // Add no-transition class to prevent flash
+        html.classList.add('no-transition');
+
+        // Set theme
+        if (savedTheme === 'dark' || (savedTheme === 'system' && prefersDark)) {
+          html.classList.add('dark-mode');
+        } else {
+          html.classList.remove('dark-mode');
+        }
+
+        // Remove no-transition class after styles are applied
+        setTimeout(() => html.classList.remove('no-transition'), 100);
+      }
+
+      // Initialize theme on page load (before rendering)
+      initTheme();
+
+      // Theme toggle button handler
+      const themeToggle = document.getElementById('theme-toggle');
+      
+      themeToggle.addEventListener('click', () => {
+        const html = document.documentElement;
+        html.classList.toggle('dark-mode');
+        
+        // Save preference to localStorage
+        const isDarkMode = html.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        
+        // Analytics (optional - to track usage)
+        console.log('Theme switched to:', isDarkMode ? 'dark' : 'light');
+      });
+
+      // Listen for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (localStorage.getItem('theme') === 'system' || !localStorage.getItem('theme')) {
+          const html = document.documentElement;
+          if (e.matches) {
+            html.classList.add('dark-mode');
+          } else {
+            html.classList.remove('dark-mode');
+          }
+        }
+      });
     </script>
 
 </body>

@@ -2,8 +2,8 @@ name: Auto Sync LinkedIn Posts
 
 on:
   schedule:
-    # Every Monday at 11:00 AM IST (05:30 UTC)
-    - cron: "30 5 * * 1"
+    # Every Monday at 6:00 AM IST (UTC+5:30)
+    - cron: "30 0 * * 1"
   workflow_dispatch:
 
 permissions:
