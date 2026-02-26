@@ -2,6 +2,8 @@ from flask import Blueprint, request, jsonify
 import requests
 from config import Config
 from utils.resume_parser import get_beautified_resume
+from database import get_collection
+from datetime import datetime
 
 bp = Blueprint('chat', __name__)
 
@@ -54,5 +56,19 @@ def chat():
     except Exception as e:
         print("Server Error:", e)
         return jsonify({"response": "An internal error occurred."})
+
+    # Save message to MongoDB
+    try:
+        chat_collection = get_collection("ai_messages")
+        if chat_collection:
+            chat_document = {
+                "user_message": user_message,
+                "ai_response": reply,
+                "timestamp": datetime.now(),
+                "user_ip": request.remote_addr
+            }
+            chat_collection.insert_one(chat_document)
+    except Exception as e:
+        print(f"Error saving message to database: {e}")
 
     return jsonify({"response": reply})
