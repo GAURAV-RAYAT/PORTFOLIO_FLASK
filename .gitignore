@@ -2,3 +2,14 @@ __pycache__
 linkedin_cookies.json
 passwd_generator.py
 ask_ai.py
+ask_ai_mobile.html
+/www
+ANDROID_APP_BUILD.md
+ANDROID_QUICKSTART.md
+build-android.bat
+capacitor.config.json
+package.json
+package-lock.json
+NPM_FIX.md
+/android
+/node_modules
