@@ -174,6 +174,20 @@
             font-style: italic;
         }
 
+        .source-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .source-badge:hover {
+            transform: scale(1.05);
+        }
+
         .message-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -374,11 +388,23 @@
 
         <div class="header">
             <h1>💬 AI Conversations</h1>
-            <p>View all messages people are asking to my AI</p>
+            <p>View all messages from Web Chat, Telegram, and API</p>
             <div class="stats">
                 <div class="stat-card">
                     <div class="number" id="message-count">{{ messages|length }}</div>
                     <div class="label">Total Messages</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="web-count">0</div>
+                    <div class="label">💻 Web Chat</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="telegram-count">0</div>
+                    <div class="label">📱 Telegram</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="api-count">0</div>
+                    <div class="label">🔌 API</div>
                 </div>
             </div>
         </div>
@@ -394,17 +420,23 @@
             </div>
             <div class="filter-buttons">
                 <button class="filter-btn active" onclick="filterMessages('all')">All</button>
-                <button class="filter-btn" onclick="filterMessages('recent')">Recent</button>
-                <button class="filter-btn" onclick="filterMessages('oldest')">Oldest</button>
+                <button class="filter-btn" onclick="filterMessages('web')">💻 Web</button>
+                <button class="filter-btn" onclick="filterMessages('telegram')">📱 Telegram</button>
+                <button class="filter-btn" onclick="filterMessages('api')">🔌 API</button>
             </div>
         </div>
 
         {% if messages %}
             <div class="messages-container" id="messages-list">
                 {% for msg in messages %}
-                    <div class="message-card" data-message-index="{{ loop.index }}">
+                    <div class="message-card" data-message-index="{{ loop.index }}" data-source="{{ msg.source or 'web' }}">
                         <div class="message-header">
-                            <div class="message-number">{{ loop.index }}</div>
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <div class="message-number">{{ loop.index }}</div>
+                                <div class="source-badge" style="background: {% if msg.source_info %}{{ msg.source_info.color }}{% else %}#4dd0e1{% endif %}; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
+                                    {% if msg.source_info %}{{ msg.source_info.icon }} {{ msg.source_info.label }}{% else %}💻 Web Chat{% endif %}
+                                </div>
+                            </div>
                             <div class="message-time">{{ msg.formatted_time }}</div>
                         </div>
                         <div class="message-content">
@@ -430,6 +462,23 @@
     </div>
 
     <script>
+        // Load message statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/ai-messages-count');
+                const data = await response.json();
+                document.getElementById('message-count').textContent = data.total;
+                document.getElementById('web-count').textContent = data.web;
+                document.getElementById('telegram-count').textContent = data.telegram;
+                document.getElementById('api-count').textContent = data.api;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load stats on page load
+        window.addEventListener('load', loadStats);
+
         // Search functionality
         const searchInput = document.getElementById('search-input');
         const messagesList = document.getElementById('messages-list');
@@ -453,23 +502,22 @@
             });
         }
 
-        // Filter functionality
+        // Filter functionality by source
         function filterMessages(type) {
             const messagesList = document.getElementById('messages-list');
             if (!messagesList) return;
 
-            const messageCards = Array.from(messagesList.querySelectorAll('.message-card'));
+            const messageCards = messagesList.querySelectorAll('.message-card');
 
-            if (type === 'recent') {
-                messageCards.reverse();
-            } else if (type === 'oldest') {
-                // Keep original order (already sorted by most recent first in Python)
-                messageCards.reverse().reverse();
-            }
-
-            messagesList.innerHTML = '';
             messageCards.forEach(card => {
-                messagesList.appendChild(card);
+                const cardSource = card.getAttribute('data-source');
+                
+                if (type === 'all' || cardSource === type) {
+                    card.style.display = '';
+                    card.style.animation = 'slideUp 0.3s ease-out';
+                } else {
+                    card.style.display = 'none';
+                }
             });
 
             // Update active filter button

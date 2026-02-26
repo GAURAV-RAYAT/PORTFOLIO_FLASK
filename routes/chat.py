@@ -2,8 +2,7 @@ from flask import Blueprint, request, jsonify
 import requests
 from config import Config
 from utils.resume_parser import get_beautified_resume
-from database import get_collection
-from datetime import datetime
+from routes.api import save_message_to_db
 
 bp = Blueprint('chat', __name__)
 
@@ -20,10 +19,14 @@ SYSTEM_PROMPT = f"""
 
 @bp.route("/chat", methods=["POST"])
 def chat():
+    print("\n🤖 Chat endpoint accessed!")
     data = request.get_json()
     user_message = data.get("message", "").strip()
+    
+    print(f"📨 User message received: {user_message}")
 
     if not user_message:
+        print("❌ Empty message!")
         return jsonify({"response": "Please enter a valid message."})
 
     try:
@@ -49,6 +52,7 @@ def chat():
         
         if "choices" in response_data:
             reply = response_data["choices"][0]["message"]["content"].strip()
+            print(f"🤖 AI Response generated: {reply[:100]}...")
         else:
             print("API Error:", response_data)
             reply = "I'm having trouble connecting right now. Please try again."
@@ -57,18 +61,12 @@ def chat():
         print("Server Error:", e)
         return jsonify({"response": "An internal error occurred."})
 
-    # Save message to MongoDB
-    try:
-        chat_collection = get_collection("ai_messages")
-        if chat_collection:
-            chat_document = {
-                "user_message": user_message,
-                "ai_response": reply,
-                "timestamp": datetime.now(),
-                "user_ip": request.remote_addr
-            }
-            chat_collection.insert_one(chat_document)
-    except Exception as e:
-        print(f"Error saving message to database: {e}")
+    # Save message to MongoDB from web source
+    save_message_to_db(
+        user_message=user_message,
+        ai_response=reply,
+        source="web",
+        user_ip=request.remote_addr
+    )
 
     return jsonify({"response": reply})
