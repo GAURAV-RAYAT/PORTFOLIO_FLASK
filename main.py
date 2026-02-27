@@ -19,6 +19,30 @@ app = Flask(__name__)
 # Load configuration
 app.config.from_object(Config)
 
+# SEO and Security Headers
+@app.after_request
+def add_seo_headers(response):
+    """Add SEO and security headers to all responses"""
+    # Security headers
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=(), payment=()'
+    
+    # SEO headers
+    response.headers['Content-Language'] = 'en'
+    
+    # Caching headers for static content
+    if response.mimetype and response.mimetype.startswith('image/'):
+        response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+    elif response.mimetype in ['text/css', 'application/javascript', 'text/javascript']:
+        response.headers['Cache-Control'] = 'public, max-age=2592000, immutable'
+    else:
+        response.headers['Cache-Control'] = 'public, max-age=3600, must-revalidate'
+    
+    return response
+
 # Initialize extensions
 mail = Mail(app)
 bcrypt = Bcrypt(app)
