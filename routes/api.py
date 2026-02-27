@@ -2,13 +2,14 @@ from flask import Blueprint, request, jsonify
 from langchain_openai import ChatOpenAI
 from config import Config
 from utils.resume_parser import get_trained_context
+from utils.mail_helper import send_ai_message_notification_email
 from database import get_collection
 from datetime import datetime
 
 bp = Blueprint('api', __name__)
 
 def save_message_to_db(user_message, ai_response, source="web", user_ip="", telegram_user_id=None):
-    """Save conversation to MongoDB from any source"""
+    """Save conversation to MongoDB from any source and send email notification"""
     try:
         chat_collection = get_collection("ai_messages")
         if chat_collection is not None:
@@ -22,6 +23,16 @@ def save_message_to_db(user_message, ai_response, source="web", user_ip="", tele
             }
             result = chat_collection.insert_one(chat_document)
             print(f"✅ Message saved from {source}! ID: {result.inserted_id}")
+            
+            # Send email notification for all AI messages
+            send_ai_message_notification_email(
+                user_message=user_message,
+                ai_response=ai_response,
+                source=source,
+                telegram_user_id=telegram_user_id,
+                user_ip=user_ip if source in ["web", "api"] else ""
+                )
+            
             return True
     except Exception as e:
         print(f"❌ Error saving message: {e}")
