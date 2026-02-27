@@ -384,30 +384,134 @@
 </head>
 <body>
     <div class="container">
-        <a href="/" class="back-button">← Back Home</a>
+        {% if not authenticated %}
+            <!-- Login Form -->
+            <style>
+                .login-form {
+                    background: rgba(255, 255, 255, 0.95);
+                    border-radius: 20px;
+                    padding: 50px;
+                    max-width: 500px;
+                    margin: 100px auto;
+                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+                    text-align: center;
+                }
 
-        <div class="header">
-            <h1>💬 AI Conversations</h1>
-            <p>View all messages from Web Chat, Telegram, and API</p>
-            <div class="stats">
-                <div class="stat-card">
-                    <div class="number" id="message-count">{{ messages|length }}</div>
-                    <div class="label">Total Messages</div>
-                </div>
-                <div class="stat-card">
-                    <div class="number" id="web-count">0</div>
-                    <div class="label">💻 Web Chat</div>
-                </div>
-                <div class="stat-card">
-                    <div class="number" id="telegram-count">0</div>
-                    <div class="label">📱 Telegram</div>
-                </div>
-                <div class="stat-card">
-                    <div class="number" id="api-count">0</div>
-                    <div class="label">🔌 API</div>
+                .login-form h2 {
+                    color: #1e3c72;
+                    margin-bottom: 10px;
+                    font-size: 2rem;
+                }
+
+                .login-form p {
+                    color: #666;
+                    margin-bottom: 30px;
+                }
+
+                .login-form input {
+                    width: 100%;
+                    padding: 15px;
+                    margin-bottom: 20px;
+                    border: 2px solid #ddd;
+                    border-radius: 10px;
+                    font-size: 1rem;
+                    box-sizing: border-box;
+                    transition: all 0.3s ease;
+                }
+
+                .login-form input:focus {
+                    outline: none;
+                    border-color: #4dd0e1;
+                    box-shadow: 0 0 10px rgba(77, 208, 225, 0.3);
+                }
+
+                .login-form button {
+                    width: 100%;
+                    padding: 15px;
+                    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+
+                .login-form button:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 5px 20px rgba(30, 60, 114, 0.3);
+                }
+
+                .error-message {
+                    background: #ffebee;
+                    color: #c62828;
+                    padding: 15px;
+                    border-radius: 10px;
+                    margin-bottom: 20px;
+                    border-left: 4px solid #c62828;
+                }
+
+                .back-button-login {
+                    display: inline-block;
+                    margin-bottom: 30px;
+                    padding: 10px 20px;
+                    background: rgba(255, 255, 255, 0.2);
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 25px;
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                }
+
+                .back-button-login:hover {
+                    background: rgba(255, 255, 255, 0.3);
+                    transform: translateX(-5px);
+                }
+            </style>
+
+            <a href="/" class="back-button-login">← Back Home</a>
+            
+            <div class="login-form">
+                <h2>🔐 Access Required</h2>
+                <p>Enter your password to view AI conversations</p>
+                
+                {% if error %}
+                    <div class="error-message">{{ error }}</div>
+                {% endif %}
+                
+                <form method="POST">
+                    <input type="password" name="password" placeholder="Enter password" required autofocus>
+                    <button type="submit">Unlock Access</button>
+                </form>
+            </div>
+        {% else %}
+            <!-- Authenticated Content -->
+            <a href="/" class="back-button">← Back Home</a>
+
+            <div class="header">
+                <h1>💬 AI Conversations</h1>
+                <p>View all messages from Web Chat, Telegram, and API</p>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="number" id="message-count">{{ messages|length }}</div>
+                        <div class="label">Total Messages</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number" id="web-count">0</div>
+                        <div class="label">💻 Web Chat</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number" id="telegram-count">0</div>
+                        <div class="label">📱 Telegram</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number" id="api-count">0</div>
+                        <div class="label">🔌 API</div>
+                    </div>
                 </div>
             </div>
-        </div>
+        {% endif %}
 
         <div class="search-section">
             <div class="search-box">
@@ -458,6 +562,7 @@
                 <h2>No Messages Yet</h2>
                 <p>Start a conversation with the AI chatbot to see messages here!</p>
             </div>
+        {% endif %}
         {% endif %}
     </div>
 

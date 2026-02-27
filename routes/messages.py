@@ -1,8 +1,15 @@
-from flask import Blueprint, request, redirect, url_for, flash, render_template, jsonify
+from flask import Blueprint, request, redirect, url_for, flash, render_template, jsonify, session
+from flask_bcrypt import Bcrypt
 from utils.mail_helper import send_contact_email
 from database import get_collection
+from config import Config
 
 bp = Blueprint('messages', __name__)
+bcrypt = Bcrypt()
+
+# --- SECURE AUTH HELPER ---
+def is_admin():
+    return session.get('log_authorized')
 
 @bp.route('/send_messege', methods=['POST'])
 def send_message():
@@ -19,10 +26,26 @@ def send_message():
     return redirect(url_for('main.home'))
 
 
-@bp.route('/ai-messages', methods=['GET'])
+@bp.route('/ai-messages', methods=['GET', 'POST'])
 def view_ai_messages():
-    """Display all AI messages from all sources"""
-    print("🔍 /ai-messages route accessed!")
+    """Display all AI messages from all sources - Secured with password"""
+    
+    # Handle login attempt
+    if request.method == 'POST' and 'password' in request.form:
+        password = request.form.get('password')
+        
+        # ✅ Securely check the hashed password
+        if Config.ADMIN_PASSWORD_HASH and bcrypt.check_password_hash(Config.ADMIN_PASSWORD_HASH, password):
+            session['log_authorized'] = True
+            return redirect(url_for('messages.view_ai_messages'))
+        else:
+            return render_template('ai_messages.html', authenticated=False, error="Incorrect Password!")
+    
+    # Check if user is already authorized
+    if not is_admin():
+        return render_template('ai_messages.html', authenticated=False)
+    
+    print("🔍 /ai-messages route accessed by authorized user!")
     
     try:
         chat_collection = get_collection("ai_messages")
@@ -40,7 +63,7 @@ def view_ai_messages():
             for msg in messages:
                 if 'timestamp' in msg:
                     msg['formatted_time'] = msg['timestamp'].strftime("%B %d, %Y at %I:%M %p")
-                
+                    
                 # Add source information if not present
                 if 'source' not in msg:
                     msg['source'] = 'web'  # Default to web for old messages
@@ -54,19 +77,23 @@ def view_ai_messages():
                 msg['source_info'] = source_map.get(msg['source'], source_map['web'])
         
         print(f"📋 Rendering with {len(messages)} messages")
-        return render_template('ai_messages.html', messages=messages)
+        return render_template('ai_messages.html', authenticated=True, messages=messages)
         
     except Exception as e:
         print(f"❌ Error fetching messages: {e}")
         import traceback
         traceback.print_exc()
         messages = []
-        return render_template('ai_messages.html', messages=messages)
+        return render_template('ai_messages.html', authenticated=True, messages=messages)
 
 
 @bp.route('/api/ai-messages-count', methods=['GET'])
 def get_messages_count():
-    """API endpoint to get message count"""
+    """API endpoint to get message count - Requires authentication"""
+    # Check if user is authorized
+    if not is_admin():
+        return jsonify({"error": "Unauthorized"}), 401
+    
     try:
         chat_collection = get_collection("ai_messages")
         if chat_collection is not None:
