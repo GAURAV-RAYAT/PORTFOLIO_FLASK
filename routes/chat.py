@@ -14,7 +14,11 @@ SYSTEM_PROMPT = f"""
     
     {resume_context}
     
-    Behavior: Keep answers concise and only use the provided facts.
+    KEEP THE ANSWERS CONCISE AND RELEVANT TO THE RESUME DATA GIVEN TO YOU.
+    DO NOT MAKE UP ANSWERS OR ADD ANY INFORMATION NOT PRESENT IN THE RESUME DATA.
+    IF YOU DON'T KNOW THE ANSWER, SAY YOU DON'T KNOW INSTEAD OF MAKING UP AN ANSWER.
+    ALWAYS REFER TO THE RESUME DATA FOR ANSWERS AND DO NOT ADD ANY PERSONAL OPINIONS OR ASSUMPTIONS.
+    If you got /start as input, reply with a welcome message and brief instructions on how to ask questions about the resume.
     """
 
 @bp.route("/chat", methods=["POST"])
