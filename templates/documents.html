@@ -11,7 +11,7 @@
 
   <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/theme.css') }}">
-  
+
   <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
 
@@ -105,8 +105,16 @@
       letter-spacing: 1px;
     }
 
-    .view-link { color: var(--orange-yellow-crayola); text-decoration: none; }
-    .delete-btn { color: #ff4d4d; background: none; border: none; }
+    .view-link {
+      color: var(--orange-yellow-crayola);
+      text-decoration: none;
+    }
+
+    .delete-btn {
+      color: #ff4d4d;
+      background: none;
+      border: none;
+    }
 
     .back-home {
       display: inline-flex;
@@ -118,16 +126,18 @@
       gap: 8px;
     }
 
-    .h2.article-title { margin-bottom: 30px; }
+    .h2.article-title {
+      margin-bottom: 30px;
+    }
   </style>
 </head>
 
 <body>
   <main>
     <div class="vault-container">
-      
+
       <header>
-        <a href="{{ url_for('home') }}" class="back-home">
+        <a href="{{ url_for('main.home') }}" class="back-home">
           <ion-icon name="arrow-back-outline"></ion-icon> Back to Portfolio
         </a>
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
@@ -144,7 +154,8 @@
       <section class="upload-section">
         <form action="/upload-doc" class="dropzone" id="document-upload-form">
           <div class="dz-message">
-            <ion-icon name="cloud-upload-outline" style="font-size: 40px; color: var(--orange-yellow-crayola); margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;"></ion-icon>
+            <ion-icon name="cloud-upload-outline"
+              style="font-size: 40px; color: var(--orange-yellow-crayola); margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;"></ion-icon>
             Drag and drop documents here or click to browse
           </div>
         </form>
@@ -152,28 +163,30 @@
 
       <section class="docs-list">
         <h3 class="h3" style="margin-bottom: 25px; color: var(--white-1);">Stored Files</h3>
-        
+
         <div class="doc-grid">
           {% for doc in documents %}
           <div class="doc-card">
             <span class="doc-icon">
               {% if '.pdf' in doc.filename.lower() %}
-                <ion-icon name="document-text-outline" style="color: #ff4d4d;"></ion-icon>
-              {% elif '.jpg' in doc.filename.lower() or '.png' in doc.filename.lower() or '.jpeg' in doc.filename.lower() %}
-                <ion-icon name="image-outline" style="color: #4db8ff;"></ion-icon>
+              <ion-icon name="document-text-outline" style="color: #ff4d4d;"></ion-icon>
+              {% elif '.jpg' in doc.filename.lower() or '.png' in doc.filename.lower() or '.jpeg' in
+              doc.filename.lower() %}
+              <ion-icon name="image-outline" style="color: #4db8ff;"></ion-icon>
               {% else %}
-                <ion-icon name="file-tray-full-outline" style="color: var(--orange-yellow-crayola);"></ion-icon>
+              <ion-icon name="file-tray-full-outline" style="color: var(--orange-yellow-crayola);"></ion-icon>
               {% endif %}
             </span>
             <p class="doc-name" title="{{ doc.filename }}">{{ doc.filename }}</p>
-            
+
             <div class="card-actions">
               <a href="{{ doc.url }}" target="_blank" class="btn-action view-link">View</a>
               <button onclick="confirmDelete('{{ doc._id }}')" class="btn-action delete-btn">Delete</button>
             </div>
           </div>
           {% else %}
-          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: var(--eerie-black-2); border-radius: 14px;">
+          <div
+            style="grid-column: 1 / -1; text-align: center; padding: 40px; background: var(--eerie-black-2); border-radius: 14px;">
             <p style="color: var(--light-gray);">No documents found. Your vault is currently empty.</p>
           </div>
           {% endfor %}
@@ -189,12 +202,12 @@
       paramName: "file",
       maxFilesize: 10, // MB
       acceptedFiles: ".pdf,.doc,.docx,.txt,.jpg,.png,.jpeg",
-      init: function() {
-        this.on("success", function(file, response) {
+      init: function () {
+        this.on("success", function (file, response) {
           // Refresh after short delay to show the new card
           setTimeout(() => { location.reload(); }, 1200);
         });
-        this.on("error", function(file, message) {
+        this.on("error", function (file, message) {
           alert("Upload failed: " + (message.error || message));
         });
       }
