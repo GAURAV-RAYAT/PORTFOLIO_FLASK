@@ -178,4 +178,44 @@ This roadmap gives you the "AI-native autonomous portfolio" goal while keeping r
 
 ---
 
+## 🛰️ Implemented Now: Phase 1 (Monitoring + Alerts)
+
+The project now includes a Phase-1 monitoring agent implementation:
+
+* `GET /api/health` for uptime/health probing.
+* `POST /api/monitoring/run` to execute one monitoring cycle.
+* `scripts/run_monitoring_agent.py` for cron/scheduler execution.
+* Email alerts on sustained failures and recovery notifications.
+
+### Environment Variables
+
+Configure these for monitoring:
+
+* `MONITOR_TARGETS` (comma-separated URLs)
+* `MONITOR_TIMEOUT_SECONDS` (default: `10`)
+* `MONITOR_FAILURE_THRESHOLD` (default: `3`)
+* `MONITOR_ALERT_EMAIL` (default: `gaurav.rayat2004@gmail.com`)
+* `MONITOR_RUN_TOKEN` (optional; required as `X-Monitor-Token` header for `POST /api/monitoring/run` when set)
+
+### Quick Start
+
+```bash
+python scripts/run_monitoring_agent.py
+```
+
+You can run this every 1-5 minutes using cron, GitHub Actions schedule, or any external scheduler.
+
+### GitHub Actions (Already Added)
+
+A workflow is included at:
+
+* `.github/workflows/monitoring_agent.yml`
+
+It runs every **2 hours** and calls your monitoring endpoint. Configure these repository secrets:
+
+* `MONITORING_URL` (example: `https://gauravrayat.me/api/monitoring/run`)
+* `MONITOR_RUN_TOKEN` (optional but recommended, if `MONITOR_RUN_TOKEN` is set on server)
+
+---
+
 © 2026 Gaurav Rayat | Data Science & AI Enthusiast

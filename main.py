@@ -12,6 +12,7 @@ from routes.documents import bp as documents_bp
 from routes.api import bp as api_bp
 from routes.telegram import bp as telegram_bp
 from routes.seo import bp as seo_bp
+from routes.monitoring import bp as monitoring_bp
 
 # Create Flask app
 app = Flask(__name__)
@@ -67,6 +68,7 @@ app.register_blueprint(documents_bp)
 app.register_blueprint(api_bp)
 app.register_blueprint(telegram_bp)
 app.register_blueprint(seo_bp)
+app.register_blueprint(monitoring_bp)
 
 if __name__ == "__main__":
     import os
