@@ -101,3 +101,43 @@ def send_ai_message_notification_email(user_message, ai_response, source="web", 
         import traceback
         traceback.print_exc()
         return False
+
+
+def send_monitoring_alert_email(target_url, status_code=None, reason="", recovery=False):
+    """Send monitoring alert/recovery email for website checks."""
+    try:
+        timestamp = datetime.now().strftime("%B %d, %Y at %I:%M %p")
+        subject_prefix = "✅ RECOVERY" if recovery else "🚨 ALERT"
+        state_text = "recovered" if recovery else "failed"
+
+        status_text = f"HTTP {status_code}" if status_code is not None else "No status code"
+        details = reason or "No additional reason provided."
+
+        html_body = f"""
+        <html>
+            <body style="font-family: Arial, sans-serif; background:#f5f5f5; padding:20px;">
+                <div style="max-width:650px; margin:0 auto; background:#ffffff; padding:24px; border-radius:10px;">
+                    <h2 style="margin-top:0;">{subject_prefix} Monitoring Agent Notification</h2>
+                    <p style="margin:8px 0;"><strong>Target:</strong> {target_url}</p>
+                    <p style="margin:8px 0;"><strong>State:</strong> {state_text}</p>
+                    <p style="margin:8px 0;"><strong>Status:</strong> {status_text}</p>
+                    <p style="margin:8px 0;"><strong>Time:</strong> {timestamp}</p>
+                    <p style="margin:8px 0;"><strong>Details:</strong> {details}</p>
+                    <hr style="border:none; border-top:1px solid #ddd; margin:20px 0;">
+                    <p style="font-size:12px; color:#777;">Automated by Phase-1 Monitoring Agent.</p>
+                </div>
+            </body>
+        </html>
+        """
+
+        msg = Message(
+            subject=f"{subject_prefix} | gauravrayat.me monitoring",
+            sender=current_app.config['MAIL_USERNAME'],
+            recipients=[current_app.config.get("MONITOR_ALERT_EMAIL", "gaurav.rayat2004@gmail.com")],
+            html=html_body
+        )
+        current_app.extensions['mail'].send(msg)
+        return True
+    except Exception as e:
+        print(f"❌ Monitoring alert email failed: {e}")
+        return False
