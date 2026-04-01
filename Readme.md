@@ -127,4 +127,95 @@ The API returns a JSON object:
 
 ---
 
+## 🤝 Multi-Agent Website Operations (Roadmap)
+
+If you want `gauravrayat.me` to be managed by multiple AI agents (monitoring, analytics, security, and recovery), the safest path is to start with a **human-supervised multi-agent architecture** and then gradually increase autonomy.
+
+### Suggested Agent Roles
+
+1. **Monitoring Agent**
+   * Watches uptime, 4xx/5xx spikes, latency, and broken routes.
+   * Triggers alerts when thresholds are crossed.
+2. **Data Agent**
+   * Collects approved analytics events and summarizes trends.
+   * Publishes daily/weekly reports for the coordinator.
+3. **Security Agent**
+   * Detects bot spikes, suspicious IP patterns, and abuse attempts.
+   * Recommends or executes safe, pre-approved mitigations.
+4. **Action/Fix Agent**
+   * Handles bounded remediations such as restarts, cache purge, or rollback.
+   * Must be restricted by allowlists and audit logs.
+5. **Coordinator Agent**
+   * Receives events from all agents and chooses workflows.
+   * Escalates high-risk changes for human approval.
+
+### Agent Communication Layer
+
+Use an event bus so agents can collaborate without tight coupling:
+
+* Redis Pub/Sub (simple start)
+* RabbitMQ / Kafka (higher scale and replayability)
+
+Example flow:
+
+`Monitoring Agent -> "500_error_spike" -> Coordinator -> Action Agent -> "restart+verify" -> Monitoring Agent confirms recovery`
+
+### Safety Controls (Required)
+
+* Human approval gate for destructive actions.
+* Immutable audit trail for every agent decision/action.
+* Per-agent permission scopes (least privilege).
+* Circuit breaker to disable autonomous actions globally.
+
+### Incremental Rollout Plan
+
+* **Phase 1:** Monitoring + alerts only.
+* **Phase 2:** Add analytics/data agent and coordinator summaries.
+* **Phase 3:** Add limited auto-remediation for low-risk incidents.
+* **Phase 4:** Add security automation and cross-agent playbooks.
+
+This roadmap gives you the "AI-native autonomous portfolio" goal while keeping reliability and security under control.
+
+---
+
+## 🛰️ Implemented Now: Phase 1 (Monitoring + Alerts)
+
+The project now includes a Phase-1 monitoring agent implementation:
+
+* `GET /api/health` for uptime/health probing.
+* `POST /api/monitoring/run` to execute one monitoring cycle.
+* `scripts/run_monitoring_agent.py` for cron/scheduler execution.
+* Email alerts on sustained failures and recovery notifications.
+
+### Environment Variables
+
+Configure these for monitoring:
+
+* `MONITOR_TARGETS` (comma-separated URLs)
+* `MONITOR_TIMEOUT_SECONDS` (default: `10`)
+* `MONITOR_FAILURE_THRESHOLD` (default: `3`)
+* `MONITOR_ALERT_EMAIL` (default: `gaurav.rayat2004@gmail.com`)
+* `MONITOR_RUN_TOKEN` (optional; required as `X-Monitor-Token` header for `POST /api/monitoring/run` when set)
+
+### Quick Start
+
+```bash
+python scripts/run_monitoring_agent.py
+```
+
+You can run this every 1-5 minutes using cron, GitHub Actions schedule, or any external scheduler.
+
+### GitHub Actions (Already Added)
+
+A workflow is included at:
+
+* `.github/workflows/monitoring_agent.yml`
+
+It runs every **2 hours** and calls your monitoring endpoint. Configure these repository secrets:
+
+* `MONITORING_URL` (optional secret/variable; if missing workflow defaults to `https://gauravrayat.me/api/monitoring/run`)
+* `MONITOR_RUN_TOKEN` (optional but recommended, if `MONITOR_RUN_TOKEN` is set on server)
+
+---
+
 © 2026 Gaurav Rayat | Data Science & AI Enthusiast
