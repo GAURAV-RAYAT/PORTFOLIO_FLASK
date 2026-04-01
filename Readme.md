@@ -127,4 +127,55 @@ The API returns a JSON object:
 
 ---
 
+## 🤝 Multi-Agent Website Operations (Roadmap)
+
+If you want `gauravrayat.me` to be managed by multiple AI agents (monitoring, analytics, security, and recovery), the safest path is to start with a **human-supervised multi-agent architecture** and then gradually increase autonomy.
+
+### Suggested Agent Roles
+
+1. **Monitoring Agent**
+   * Watches uptime, 4xx/5xx spikes, latency, and broken routes.
+   * Triggers alerts when thresholds are crossed.
+2. **Data Agent**
+   * Collects approved analytics events and summarizes trends.
+   * Publishes daily/weekly reports for the coordinator.
+3. **Security Agent**
+   * Detects bot spikes, suspicious IP patterns, and abuse attempts.
+   * Recommends or executes safe, pre-approved mitigations.
+4. **Action/Fix Agent**
+   * Handles bounded remediations such as restarts, cache purge, or rollback.
+   * Must be restricted by allowlists and audit logs.
+5. **Coordinator Agent**
+   * Receives events from all agents and chooses workflows.
+   * Escalates high-risk changes for human approval.
+
+### Agent Communication Layer
+
+Use an event bus so agents can collaborate without tight coupling:
+
+* Redis Pub/Sub (simple start)
+* RabbitMQ / Kafka (higher scale and replayability)
+
+Example flow:
+
+`Monitoring Agent -> "500_error_spike" -> Coordinator -> Action Agent -> "restart+verify" -> Monitoring Agent confirms recovery`
+
+### Safety Controls (Required)
+
+* Human approval gate for destructive actions.
+* Immutable audit trail for every agent decision/action.
+* Per-agent permission scopes (least privilege).
+* Circuit breaker to disable autonomous actions globally.
+
+### Incremental Rollout Plan
+
+* **Phase 1:** Monitoring + alerts only.
+* **Phase 2:** Add analytics/data agent and coordinator summaries.
+* **Phase 3:** Add limited auto-remediation for low-risk incidents.
+* **Phase 4:** Add security automation and cross-agent playbooks.
+
+This roadmap gives you the "AI-native autonomous portfolio" goal while keeping reliability and security under control.
+
+---
+
 © 2026 Gaurav Rayat | Data Science & AI Enthusiast
