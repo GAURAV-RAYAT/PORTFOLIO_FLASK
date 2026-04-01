@@ -213,7 +213,7 @@ A workflow is included at:
 
 It runs every **2 hours** and calls your monitoring endpoint. Configure these repository secrets:
 
-* `MONITORING_URL` (example: `https://gauravrayat.me/api/monitoring/run`)
+* `MONITORING_URL` (optional secret/variable; if missing workflow defaults to `https://gauravrayat.me/api/monitoring/run`)
 * `MONITOR_RUN_TOKEN` (optional but recommended, if `MONITOR_RUN_TOKEN` is set on server)
 
 ---

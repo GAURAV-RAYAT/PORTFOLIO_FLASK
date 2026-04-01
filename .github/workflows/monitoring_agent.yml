@@ -12,14 +12,9 @@ jobs:
     steps:
       - name: Trigger monitoring cycle
         env:
-          MONITORING_URL: ${{ secrets.MONITORING_URL }}
+          MONITORING_URL: ${{ secrets.MONITORING_URL || vars.MONITORING_URL || 'https://gauravrayat.me/api/monitoring/run' }}
           MONITOR_RUN_TOKEN: ${{ secrets.MONITOR_RUN_TOKEN }}
         run: |
-          if [ -z "$MONITORING_URL" ]; then
-            echo "MONITORING_URL secret is required (example: https://gauravrayat.me/api/monitoring/run)"
-            exit 1
-          fi
-
           AUTH_HEADER=""
           if [ -n "$MONITOR_RUN_TOKEN" ]; then
             AUTH_HEADER="X-Monitor-Token: $MONITOR_RUN_TOKEN"
