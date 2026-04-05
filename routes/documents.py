@@ -80,12 +80,19 @@ def delete_document(doc_id):
         try:
             doc = doc_collection.find_one({"_id": ObjectId(doc_id)})
             if doc:
-                cloudinary.uploader.destroy(
-                    doc["cloudinary_public_id"],
-                    resource_type=doc.get("resource_type", "raw"),
-                )
+                # Delete from Cloudinary — try the stored resource_type, fall back silently
+                try:
+                    cloudinary.uploader.destroy(
+                        doc["cloudinary_public_id"],
+                        resource_type=doc.get("resource_type", "raw"),
+                    )
+                except Exception as ce:
+                    print(f"Cloudinary delete warning (continuing): {ce}")
+                # Always delete from MongoDB regardless of Cloudinary result
                 doc_collection.delete_one({"_id": ObjectId(doc_id)})
         except Exception as e:
             print(f"Delete error: {e}")
+
+    return redirect(url_for("documents.view_documents"))
 
     return redirect(url_for("documents.view_documents"))
