@@ -29,10 +29,12 @@ def run_monitoring_now():
     """
     from flask import request
 
-    if Config.MONITOR_RUN_TOKEN:
-        incoming_token = request.headers.get("X-Monitor-Token")
-        if incoming_token != Config.MONITOR_RUN_TOKEN:
-            return jsonify({"ok": False, "error": "Unauthorized"}), 401
+    # Fail-closed: if token not configured, deny all requests
+    if not Config.MONITOR_RUN_TOKEN:
+        return jsonify({"ok": False, "error": "Monitoring run token not configured"}), 503
+    incoming_token = request.headers.get("X-Monitor-Token")
+    if incoming_token != Config.MONITOR_RUN_TOKEN:
+        return jsonify({"ok": False, "error": "Unauthorized"}), 401
 
     results = run_monitoring_cycle()
     return jsonify({"ok": True, "results": results}), 200

@@ -55,7 +55,7 @@ def add_pass():
         })
     return redirect(url_for('auth.pass_manager'))
 
-@bp.route('/delete_pass/<id>')
+@bp.route('/delete_pass/<id>', methods=['POST'])
 def delete_pass(id):
     if not is_admin(): 
         return redirect(url_for('auth.pass_manager'))

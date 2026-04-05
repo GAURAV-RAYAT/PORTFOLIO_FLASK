@@ -213,10 +213,19 @@
       }
     };
 
-    // Confirm before deleting
+    // Confirm before deleting (POST with CSRF token)
     function confirmDelete(docId) {
       if (confirm("Are you sure you want to permanently delete this document?")) {
-        window.location.href = "/delete-doc/" + docId;
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/delete-doc/' + docId;
+        const csrf = document.createElement('input');
+        csrf.type = 'hidden';
+        csrf.name = 'csrf_token';
+        csrf.value = '{{ csrf_token() }}';
+        form.appendChild(csrf);
+        document.body.appendChild(form);
+        form.submit();
       }
     }
   </script>

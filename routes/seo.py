@@ -1,21 +1,27 @@
 from flask import Blueprint, make_response
-from datetime import datetime
 
 bp = Blueprint('seo', __name__)
 
+# Fixed lastmod date — update this manually when you deploy significant changes
+SITE_LASTMOD = "2026-04-02"
+
 @bp.route('/robots.txt')
 def robots():
-    # Enhanced robots.txt with crawl optimization
     content = """User-agent: *
 Allow: /
+Disallow: /pass
+Disallow: /logs
+Disallow: /documents
+Disallow: /ai-messages
+Disallow: /add_pass
+Disallow: /delete_pass/
+Disallow: /upload-doc
+Disallow: /delete-doc/
 Disallow: /admin/
 Disallow: /__pycache__/
 Disallow: /.git/
-Disallow: /node_modules/
-Disallow: /venv/
 
 Sitemap: https://gauravrayat.me/sitemap.xml
-Sitemap: https://gauravrayat.me/sitemap-index.xml
 
 User-agent: Googlebot
 Allow: /
@@ -31,109 +37,23 @@ Crawl-delay: 1
 
 @bp.route('/sitemap.xml')
 def sitemap():
-    """Main sitemap with high-priority pages"""
-    lastmod_date = datetime.now().strftime("%Y-%m-%d")
-    
+    """Main sitemap — only pages on gauravrayat.me; no hash anchors or external URLs"""
     content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0">
-    <!-- Homepage -->
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+    <!-- Homepage (single-page app; all sections live here) -->
     <url>
         <loc>https://gauravrayat.me/</loc>
-        <lastmod>{lastmod_date}</lastmod>
+        <lastmod>{SITE_LASTMOD}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
         <image:image>
             <image:loc>https://gauravrayat.me/static/assets/images/my-avatar.png</image:loc>
             <image:title>Gaurav Rayat - Data Scientist Portfolio</image:title>
         </image:image>
-        <mobile:mobile/>
-    </url>
-    
-    <!-- Portfolio Page -->
-    <url>
-        <loc>https://gauravrayat.me/#portfolio</loc>
-        <lastmod>{lastmod_date}</lastmod>
-        <changefreq>bi-weekly</changefreq>
-        <priority>0.9</priority>
-    </url>
-    
-    <!-- Resume Page -->
-    <url>
-        <loc>https://gauravrayat.me/#resume</loc>
-        <lastmod>{lastmod_date}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.85</priority>
-    </url>
-    
-    <!-- Contact Page -->
-    <url>
-        <loc>https://gauravrayat.me/#contact</loc>
-        <lastmod>{lastmod_date}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    
-    <!-- Password Generator -->
-    <url>
-        <loc>https://gauravrayat.me/pass</loc>
-        <lastmod>{lastmod_date}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.5</priority>
-    </url>
-    
-    <!-- External Project Links -->
-    <url>
-        <loc>https://irisflowerclassification-nrvu9opgqoeumpd6shav6y.streamlit.app/</loc>
-        <lastmod>{lastmod_date}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>
-    
-    <url>
-        <loc>https://spamdetection-mue3rguqznuqyb2zkweuds.streamlit.app/</loc>
-        <lastmod>{lastmod_date}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>
-    
-    <url>
-        <loc>https://calc.gauravrayat.me</loc>
-        <lastmod>{lastmod_date}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
-    </url>
-    
-    <url>
-        <loc>https://namrah.gauravrayat.me</loc>
-        <lastmod>{lastmod_date}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
-    </url>
-    
-    <url>
-        <loc>https://dairy.gauravrayat.me</loc>
-        <lastmod>{lastmod_date}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
-    </url>
-    
-    <url>
-        <loc>https://crime.gauravrayat.me</loc>
-        <lastmod>{lastmod_date}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
-    </url>
-    
-    <url>
-        <loc>https://school.gauravrayat.me</loc>
-        <lastmod>{lastmod_date}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
     </url>
 </urlset>"""
-    
+
     response = make_response(content)
     response.headers["Content-Type"] = "application/xml"
     return response
@@ -147,7 +67,8 @@ def sitemap_index():
         <loc>https://gauravrayat.me/sitemap.xml</loc>
     </sitemap>
 </sitemapindex>"""
-    
+
     response = make_response(content)
     response.headers["Content-Type"] = "application/xml"
     return response
+

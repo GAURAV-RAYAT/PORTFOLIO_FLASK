@@ -1,17 +1,12 @@
 from flask import Blueprint, request, redirect, url_for, flash, render_template, jsonify, session
-from flask_bcrypt import Bcrypt
 from utils.mail_helper import send_contact_email
 from database import get_collection
 from config import Config
+from routes.auth import is_admin, bcrypt
 
 bp = Blueprint('messages', __name__)
-bcrypt = Bcrypt()
 
-# --- SECURE AUTH HELPER ---
-def is_admin():
-    return session.get('log_authorized')
-
-@bp.route('/send_messege', methods=['POST'])
+@bp.route('/send_message', methods=['POST'])
 def send_message():
     fullname = request.form.get('fullname')
     email = request.form.get('email')
@@ -19,7 +14,7 @@ def send_message():
 
     if fullname and email and message_content:
         success, message = send_contact_email(fullname, email, message_content)
-        flash(message, "success" if success else "error")
+        flash(message, "success" if success else "danger")
     else:
         flash("All fields are required.", "warning")
     

@@ -48,7 +48,7 @@ def get_ai_answer(user_query):
 
         # 2. Setup LLM
         llm = ChatOpenAI(
-            model="openai/gpt-4o-mini",
+            model="meta-llama/llama-3.3-70b:free",
             openai_api_key=Config.OPENROUTER_API_KEY,
             base_url="https://openrouter.ai/api/v1"
         )
@@ -60,7 +60,8 @@ def get_ai_answer(user_query):
         ])
         return response.content
     except Exception as e:
-        return f"Error: {str(e)}"
+        print(f"AI error: {e}")
+        return "I'm having trouble processing your request right now. Please try again later."
 
 @bp.route("/api/ask", methods=["POST"])
 def api_ask_route():

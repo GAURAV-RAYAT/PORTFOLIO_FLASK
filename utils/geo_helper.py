@@ -1,14 +1,14 @@
 import requests
 
 def get_visitor_location(ip_address):
-    """Fetch location details from IP address"""
+    """Fetch location details from IP address via HTTPS"""
     try:
-        response = requests.get(f"http://ip-api.com/json/{ip_address}")
+        response = requests.get(f"https://ipapi.co/{ip_address}/json/", timeout=5)
         loc_data = response.json()
         return {
             "city": loc_data.get("city", "Unknown City"),
-            "country": loc_data.get("country", "Unknown Country"),
-            "isp": loc_data.get("isp", "Unknown ISP")
+            "country": loc_data.get("country_name", "Unknown Country"),
+            "isp": loc_data.get("org", "Unknown ISP")
         }
     except Exception as e:
         print(f"Geolocation Error: {e}")

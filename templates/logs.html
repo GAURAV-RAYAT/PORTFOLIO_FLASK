@@ -99,6 +99,7 @@
         {% endif %}
 
         <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <input type="password" name="password" placeholder="Enter Password" required autofocus>
             <button type="submit">Unlock Logs</button>
         </form>

@@ -1,67 +1,58 @@
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify
-import cloudinary.uploader
-from datetime import datetime
-from bson.objectid import ObjectId
-from config import Config
+from flask import Blueprint, render_template, request, redirect, url_for, session
+from datetime import datetime, timezone
+import json
+import os
+import threading
 from database import get_collection, get_client
-from routes.auth import is_admin
+from utils.geo_helper import get_visitor_ip, get_visitor_location
 
-bp = Blueprint('documents', __name__)
+bp = Blueprint('main', __name__)
 
-# Configure Cloudinary
-import cloudinary
-cloudinary.config(
-    cloud_name=Config.CLOUDINARY_NAME,
-    api_key=Config.CLOUDINARY_API_KEY,
-    api_secret=Config.CLOUDINARY_API_SECRET
-)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-@bp.route('/documents')
-def documents_page():
-    if not is_admin(): 
-        return redirect(url_for('auth.view_logs')) 
-    
-    # Fetch existing docs from MongoDB
-    docs = []
-    if get_client() is not None:
-        doc_collection = get_collection("document_logs")
-        docs = list(doc_collection.find().sort("_id", -1))
-    
-    return render_template('documents.html', authenticated=True, documents=docs)
-
-@bp.route('/upload-doc', methods=['POST'])
-def upload_document():
-    if not is_admin():
-        return jsonify({"error": "Unauthorized"}), 403
-
-    file = request.files.get('file')
-    if file:
-        # Upload to Cloudinary
-        upload_result = cloudinary.uploader.upload(file, resource_type="auto")
-        file_url = upload_result.get("secure_url")
-
-        # Save record to MongoDB
+def _log_visitor(visitor_ip):
+    """Run geo-lookup and DB insert in a background thread to avoid blocking the response."""
+    try:
+        loc_data = get_visitor_location(visitor_ip)
+        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
         if get_client() is not None:
-            doc_collection = get_collection("document_logs")
-            doc_collection.insert_one({
-                "filename": file.filename,
-                "url": file_url,
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            })
-        return jsonify({"url": file_url}), 200
-    
-    return jsonify({"error": "Upload failed"}), 400
+            log_entry = {
+                "ip": visitor_ip,
+                "city": loc_data["city"],
+                "country": loc_data["country"],
+                "isp": loc_data["isp"],
+                "timestamp": timestamp
+            }
+            visitor_collection = get_collection("visitor_logs")
+            visitor_collection.insert_one(log_entry)
+    except Exception as e:
+        print(f"Visitor Tracking Error: {e}")
 
-@bp.route('/delete-doc/<id>')
-def delete_document(id):
-    if not is_admin(): 
-        return redirect(url_for('auth.view_logs'))
-    
-    if get_client() is not None:
-        try:
-            doc_collection = get_collection("document_logs")
-            doc_collection.delete_one({"_id": ObjectId(id)})
-        except Exception as e:
-            print(f"Delete Error: {e}")
-            
-    return redirect(url_for('documents.documents_page'))
+
+@bp.route('/')
+def home():
+    visitor_ip = get_visitor_ip(request)
+    threading.Thread(target=_log_visitor, args=(visitor_ip,), daemon=True).start()
+
+    # Load LinkedIn posts from JSON using absolute path
+    linkedin_posts = []
+    try:
+        posts_path = os.path.join(BASE_DIR, "data", "linkedin_posts.json")
+        with open(posts_path, "r", encoding="utf-8") as f:
+            linkedin_posts = json.load(f)
+
+        # newest first
+        linkedin_posts = sorted(
+            linkedin_posts,
+            key=lambda x: x.get("date", ""),
+            reverse=True
+        )
+    except Exception as e:
+        print(f"LinkedIn posts load error: {e}")
+
+    return render_template('index.html', linkedin_posts=linkedin_posts)
+
+
+@bp.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404

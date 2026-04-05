@@ -1,143 +1,141 @@
-from flask_mail import Message
-from flask import current_app
 from datetime import datetime
+import requests
 
-def send_contact_email(fullname, email, message_content):
-    """Send contact form message and auto-reply"""
-    try:
-        msg = Message(
-            subject=f"Contact Form Message from {fullname} | gauravrayat.me",
-            sender=email,
-            recipients=["gaurav.rayat2004@gmail.com"],
-            body=f"Name: {fullname}\nEmail: {email}\nMessage: {message_content}"
-        )
-        current_app.extensions['mail'].send(msg)
-
-        auto_reply = Message(
-            subject="Thank you for contacting me! | Gaurav Rayat",
-            sender=current_app.config['MAIL_USERNAME'],
-            recipients=[email],
-            body=f"Hi {fullname},\n\nThank you for reaching out! I have received your message and will get back to you as soon as possible.\n\nBest regards,\nGaurav Rayat"
-        )
-        current_app.extensions['mail'].send(auto_reply)
-        return True, "Your message has been sent successfully!"
-    
-    except Exception as e:
-        print(f"Email Error: {e}")
-        return False, "Failed to send message. Please try again."
+from config import Config
+from database import get_collection
+from utils.mail_helper import send_monitoring_alert_email
 
 
-def send_ai_message_notification_email(user_message, ai_response, source="web", telegram_user_id=None, user_ip=""):
-    """Send email notification whenever AI is asked a question from any source"""
-    try:
-        # Determine source label and icon
-        source_info = {
-            "web": {"label": "Web Chat", "icon": "💻"},
-            "telegram": {"label": "Telegram", "icon": "📱"},
-            "api": {"label": "API", "icon": "🔌"}
+def parse_monitor_targets():
+    """Parse monitoring targets from comma-separated env configuration."""
+    raw_targets = Config.MONITOR_TARGETS or ""
+    return [item.strip() for item in raw_targets.split(",") if item.strip()]
+
+
+def get_latest_status(target_url):
+    """Fetch latest monitoring status document for a target."""
+    collection = get_collection("monitoring_status")
+    if collection is None:
+        return None
+    return collection.find_one({"target_url": target_url})
+
+
+def upsert_status(target_url, consecutive_failures, last_state, last_reason, status_code=None):
+    """Persist latest status snapshot per target."""
+    collection = get_collection("monitoring_status")
+    if collection is None:
+        return
+    collection.update_one(
+        {"target_url": target_url},
+        {
+            "$set": {
+                "target_url": target_url,
+                "consecutive_failures": consecutive_failures,
+                "last_state": last_state,
+                "last_reason": last_reason,
+                "status_code": status_code,
+                "updated_at": datetime.utcnow(),
+            }
+        },
+        upsert=True,
+    )
+
+
+def save_monitoring_event(target_url, state, status_code=None, reason=""):
+    """Store each monitoring check event."""
+    collection = get_collection("monitoring_events")
+    if collection is None:
+        return
+    collection.insert_one(
+        {
+            "target_url": target_url,
+            "state": state,
+            "status_code": status_code,
+            "reason": reason,
+            "checked_at": datetime.utcnow(),
         }
-        
-        source_data = source_info.get(source, {"label": "Unknown", "icon": "❓"})
-        
-        # Build email body
-        timestamp = datetime.now().strftime("%B %d, %Y at %I:%M %p")
-        
-        # Build source info with conditional fields
-        source_info_html = f"""
-        <p style="margin: 0; color: #666;"><strong>Source:</strong> {source_data['icon']} {source_data['label']}</p>
-        <p style="margin: 5px 0 0 0; color: #666;"><strong>Time:</strong> {timestamp}</p>
-        """
-        
-        if telegram_user_id:
-            source_info_html += f"<p style=\"margin: 5px 0 0 0; color: #666;\"><strong>Telegram User ID:</strong> {telegram_user_id}</p>"
-        
-        if user_ip:
-            source_info_html += f"<p style=\"margin: 5px 0 0 0; color: #666;\"><strong>IP Address:</strong> {user_ip}</p>"
-        
-        email_body = f"""
-        <html>
-            <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
-                <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                    <h2 style="color: #1e3c72; margin-bottom: 20px;">🤖 New AI Message Notification</h2>
-                    
-                    <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #4dd0e1; margin-bottom: 20px;">
-                        {source_info_html}
-                    </div>
-                    
-                    <div style="margin-bottom: 20px;">
-                        <h3 style="color: #ff9800; margin-bottom: 10px;">👤 User Question:</h3>
-                        <p style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; color: #333; line-height: 1.6;">{user_message}</p>
-                    </div>
-                    
-                    <div style="margin-bottom: 20px;">
-                        <h3 style="color: #2196f3; margin-bottom: 10px;">🤖 AI Response:</h3>
-                        <p style="background-color: #e3f2fd; padding: 15px; border-radius: 5px; color: #333; line-height: 1.6;">{ai_response}</p>
-                    </div>
-                    
-                    <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-                    
-                    <div style="text-align: center; color: #999; font-size: 12px;">
-                        <p>This is an automated notification from your AI chatbot system.</p>
-                        <p><a href="https://gauravrayat.me/ai-messages" style="color: #4dd0e1; text-decoration: none;">View all messages</a></p>
-                    </div>
-                </div>
-            </body>
-        </html>
-        """
-        
-        # Create and send email
-        msg = Message(
-            subject=f"🤖 AI Message Notification - {source_data['label']} | gauravrayat.me",
-            sender=current_app.config['MAIL_USERNAME'],
-            recipients=["gaurav.rayat2004@gmail.com"],
-            html=email_body
-        )
-        current_app.extensions['mail'].send(msg)
-        print(f"✅ AI message notification email sent for {source} query!")
-        return True
-    
-    except Exception as e:
-        print(f"❌ Error sending AI message notification email: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
+    )
 
 
-def send_monitoring_alert_email(target_url, status_code=None, reason="", recovery=False):
-    """Send monitoring alert/recovery email for website checks."""
+def check_target(target_url):
+    """Run one health check for a target URL."""
+    timeout = Config.MONITOR_TIMEOUT_SECONDS
     try:
-        timestamp = datetime.now().strftime("%B %d, %Y at %I:%M %p")
-        subject_prefix = "✅ RECOVERY" if recovery else "🚨 ALERT"
-        state_text = "recovered" if recovery else "failed"
-
-        status_text = f"HTTP {status_code}" if status_code is not None else "No status code"
-        details = reason or "No additional reason provided."
-
-        html_body = f"""
-        <html>
-            <body style="font-family: Arial, sans-serif; background:#f5f5f5; padding:20px;">
-                <div style="max-width:650px; margin:0 auto; background:#ffffff; padding:24px; border-radius:10px;">
-                    <h2 style="margin-top:0;">{subject_prefix} Monitoring Agent Notification</h2>
-                    <p style="margin:8px 0;"><strong>Target:</strong> {target_url}</p>
-                    <p style="margin:8px 0;"><strong>State:</strong> {state_text}</p>
-                    <p style="margin:8px 0;"><strong>Status:</strong> {status_text}</p>
-                    <p style="margin:8px 0;"><strong>Time:</strong> {timestamp}</p>
-                    <p style="margin:8px 0;"><strong>Details:</strong> {details}</p>
-                    <hr style="border:none; border-top:1px solid #ddd; margin:20px 0;">
-                    <p style="font-size:12px; color:#777;">Automated by Phase-1 Monitoring Agent.</p>
-                </div>
-            </body>
-        </html>
-        """
-
-        msg = Message(
-            subject=f"{subject_prefix} | gauravrayat.me monitoring",
-            sender=current_app.config['MAIL_USERNAME'],
-            recipients=[current_app.config.get("MONITOR_ALERT_EMAIL", "gaurav.rayat2004@gmail.com")],
-            html=html_body
-        )
-        current_app.extensions['mail'].send(msg)
-        return True
+        response = requests.get(target_url, timeout=timeout)
+        if 200 <= response.status_code < 400:
+            return {
+                "success": True,
+                "status_code": response.status_code,
+                "reason": "OK",
+            }
+        return {
+            "success": False,
+            "status_code": response.status_code,
+            "reason": f"Unexpected HTTP status {response.status_code}",
+        }
     except Exception as e:
-        print(f"❌ Monitoring alert email failed: {e}")
-        return False
+        return {
+            "success": False,
+            "status_code": None,
+            "reason": str(e),
+        }
+
+
+def run_monitoring_cycle():
+    """Run one complete monitoring pass and trigger alerts when needed."""
+    targets = parse_monitor_targets()
+    threshold = Config.MONITOR_FAILURE_THRESHOLD
+    results = []
+
+    for target in targets:
+        current = check_target(target)
+        previous = get_latest_status(target) or {}
+        prev_failures = int(previous.get("consecutive_failures", 0))
+        prev_state = previous.get("last_state", "healthy")
+
+        if current["success"]:
+            state = "healthy"
+            failures = 0
+            if prev_state == "failing":
+                send_monitoring_alert_email(
+                    target_url=target,
+                    status_code=current["status_code"],
+                    reason="Endpoint recovered.",
+                    recovery=True,
+                )
+        else:
+            failures = prev_failures + 1
+            state = "failing" if failures >= threshold else "degraded"
+            if failures == threshold:
+                send_monitoring_alert_email(
+                    target_url=target,
+                    status_code=current["status_code"],
+                    reason=current["reason"],
+                    recovery=False,
+                )
+
+        save_monitoring_event(
+            target_url=target,
+            state=state,
+            status_code=current["status_code"],
+            reason=current["reason"],
+        )
+        upsert_status(
+            target_url=target,
+            consecutive_failures=failures,
+            last_state=state,
+            last_reason=current["reason"],
+            status_code=current["status_code"],
+        )
+
+        results.append(
+            {
+                "target_url": target,
+                "state": state,
+                "status_code": current["status_code"],
+                "reason": current["reason"],
+                "consecutive_failures": failures,
+            }
+        )
+
+    return results

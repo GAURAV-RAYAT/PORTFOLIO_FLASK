@@ -6,10 +6,14 @@ from routes.api import save_message_to_db
 
 bp = Blueprint('chat', __name__)
 
-# --- RESUME DATA CONTEXT ---
-resume_context = get_beautified_resume()
-SYSTEM_PROMPT = f"""
-    You are the AI Assistant for Gaurav Rayat. 
+_system_prompt_cache = None
+
+def _get_system_prompt():
+    """Lazy-initialize the system prompt so a missing PDF at startup doesn't crash the app."""
+    global _system_prompt_cache
+    if _system_prompt_cache is None:
+        resume_context = get_beautified_resume()
+        _system_prompt_cache = f"""    You are the AI Assistant for Gaurav Rayat. 
     Use the following resume data to answer questions:
     
     {resume_context}
@@ -20,6 +24,7 @@ SYSTEM_PROMPT = f"""
     ALWAYS REFER TO THE RESUME DATA FOR ANSWERS AND DO NOT ADD ANY PERSONAL OPINIONS OR ASSUMPTIONS.
     If you got /start as input, reply with a welcome message and brief instructions on how to ask questions about the resume.
     """
+    return _system_prompt_cache
 
 @bp.route("/chat", methods=["POST"])
 def chat():
@@ -42,7 +47,7 @@ def chat():
         payload = {
             "model": "openai/gpt-4o-mini",
             "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": _get_system_prompt()},
                 {"role": "user", "content": user_message}
             ]
         }
