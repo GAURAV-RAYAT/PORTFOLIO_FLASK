@@ -38,10 +38,16 @@ def chat():
         print("❌ Empty message!")
         return jsonify({"response": "Please enter a valid message."})
 
+    if not Config.OPENROUTER_API_KEY:
+        print("❌ OPENROUTER_API_KEY is not set!")
+        return jsonify({"response": "AI service is not configured. Please contact the admin."})
+
     try:
         headers = {
             "Authorization": f"Bearer {Config.OPENROUTER_API_KEY}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://gauravrayat.me",
+            "X-Title": "Gaurav Rayat Portfolio"
         }
         
         payload = {
@@ -55,7 +61,8 @@ def chat():
         response = requests.post(
             "https://openrouter.ai/api/v1/chat/completions",
             headers=headers,
-            json=payload
+            json=payload,
+            timeout=25
         )
         response_data = response.json()
         
@@ -64,8 +71,13 @@ def chat():
             print(f"🤖 AI Response generated: {reply[:100]}...")
         else:
             print("API Error:", response_data)
+            error_msg = response_data.get("error", {}).get("message", "Unknown error")
+            print(f"OpenRouter error detail: {error_msg}")
             reply = "I'm having trouble connecting right now. Please try again."
 
+    except requests.exceptions.Timeout:
+        print("❌ OpenRouter request timed out")
+        return jsonify({"response": "The AI is taking too long to respond. Please try again."})
     except Exception as e:
         print("Server Error:", e)
         return jsonify({"response": "An internal error occurred."})
