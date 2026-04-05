@@ -1,17 +1,27 @@
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify, session
 import cloudinary
 import cloudinary.uploader
 from bson.objectid import ObjectId
 from database import get_collection
-from routes.auth import is_admin
+from routes.auth import is_admin, bcrypt
+from config import Config
 
 bp = Blueprint("documents", __name__)
 
 
-@bp.route("/documents", methods=["GET"])
+@bp.route("/documents", methods=["GET", "POST"])
 def view_documents():
+    # Handle login attempt
+    if request.method == "POST" and "password" in request.form:
+        password = request.form.get("password")
+        if Config.ADMIN_PASSWORD_HASH and bcrypt.check_password_hash(Config.ADMIN_PASSWORD_HASH, password):
+            session["log_authorized"] = True
+            return redirect(url_for("documents.view_documents"))
+        else:
+            return render_template("documents.html", authenticated=False, error="Incorrect Password!")
+
     if not is_admin():
-        return redirect(url_for("auth.pass_manager"))
+        return render_template("documents.html", authenticated=False)
 
     documents = []
     doc_collection = get_collection("documents")
@@ -21,7 +31,7 @@ def view_documents():
         except Exception as e:
             print(f"DB Error fetching documents: {e}")
 
-    return render_template("documents.html", documents=documents)
+    return render_template("documents.html", authenticated=True, documents=documents)
 
 
 @bp.route("/upload-doc", methods=["POST"])
