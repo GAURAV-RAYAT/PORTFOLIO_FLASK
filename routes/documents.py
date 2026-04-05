@@ -1,58 +1,81 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session
-from datetime import datetime, timezone
-import json
-import os
-import threading
-from database import get_collection, get_client
-from utils.geo_helper import get_visitor_ip, get_visitor_location
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify
+import cloudinary
+import cloudinary.uploader
+from bson.objectid import ObjectId
+from database import get_collection
+from routes.auth import is_admin
 
-bp = Blueprint('main', __name__)
+bp = Blueprint("documents", __name__)
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-def _log_visitor(visitor_ip):
-    """Run geo-lookup and DB insert in a background thread to avoid blocking the response."""
+@bp.route("/documents", methods=["GET"])
+def view_documents():
+    if not is_admin():
+        return redirect(url_for("auth.pass_manager"))
+
+    documents = []
+    doc_collection = get_collection("documents")
+    if doc_collection is not None:
+        try:
+            documents = list(doc_collection.find().sort("_id", -1))
+        except Exception as e:
+            print(f"DB Error fetching documents: {e}")
+
+    return render_template("documents.html", documents=documents)
+
+
+@bp.route("/upload-doc", methods=["POST"])
+def upload_document():
+    if not is_admin():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+
+    file = request.files["file"]
+    if not file.filename:
+        return jsonify({"error": "No file selected"}), 400
+
     try:
-        loc_data = get_visitor_location(visitor_ip)
-        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-        if get_client() is not None:
-            log_entry = {
-                "ip": visitor_ip,
-                "city": loc_data["city"],
-                "country": loc_data["country"],
-                "isp": loc_data["isp"],
-                "timestamp": timestamp
-            }
-            visitor_collection = get_collection("visitor_logs")
-            visitor_collection.insert_one(log_entry)
-    except Exception as e:
-        print(f"Visitor Tracking Error: {e}")
-
-
-@bp.route('/')
-def home():
-    visitor_ip = get_visitor_ip(request)
-    threading.Thread(target=_log_visitor, args=(visitor_ip,), daemon=True).start()
-
-    # Load LinkedIn posts from JSON using absolute path
-    linkedin_posts = []
-    try:
-        posts_path = os.path.join(BASE_DIR, "data", "linkedin_posts.json")
-        with open(posts_path, "r", encoding="utf-8") as f:
-            linkedin_posts = json.load(f)
-
-        # newest first
-        linkedin_posts = sorted(
-            linkedin_posts,
-            key=lambda x: x.get("date", ""),
-            reverse=True
+        result = cloudinary.uploader.upload(
+            file,
+            resource_type="auto",
+            folder="portfolio_docs",
         )
+
+        doc_collection = get_collection("documents")
+        if doc_collection is not None:
+            doc_collection.insert_one(
+                {
+                    "filename": file.filename,
+                    "url": result["secure_url"],
+                    "cloudinary_public_id": result["public_id"],
+                    "resource_type": result.get("resource_type", "raw"),
+                }
+            )
+
+        return jsonify({"message": "Uploaded successfully", "url": result["secure_url"]})
     except Exception as e:
-        print(f"LinkedIn posts load error: {e}")
+        print(f"Upload error: {e}")
+        return jsonify({"error": str(e)}), 500
 
-    return render_template('index.html', linkedin_posts=linkedin_posts)
 
+@bp.route("/delete-doc/<doc_id>", methods=["POST"])
+def delete_document(doc_id):
+    if not is_admin():
+        return redirect(url_for("auth.pass_manager"))
 
-@bp.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
+    doc_collection = get_collection("documents")
+    if doc_collection is not None:
+        try:
+            doc = doc_collection.find_one({"_id": ObjectId(doc_id)})
+            if doc:
+                cloudinary.uploader.destroy(
+                    doc["cloudinary_public_id"],
+                    resource_type=doc.get("resource_type", "raw"),
+                )
+                doc_collection.delete_one({"_id": ObjectId(doc_id)})
+        except Exception as e:
+            print(f"Delete error: {e}")
+
+    return redirect(url_for("documents.view_documents"))

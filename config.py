@@ -28,6 +28,7 @@ class Config:
     # API Keys
     OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
     TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+    TELEGRAM_WEBHOOK_SECRET = os.environ.get("TELEGRAM_WEBHOOK_SECRET")
     ADMIN_PASSWORD_HASH = os.environ.get("ADMIN_PASSWORD_HASH")
 
     # Monitoring Agent (Phase 1)
