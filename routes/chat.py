@@ -51,7 +51,7 @@ def chat():
         }
         
         payload = {
-            "model": "openai/gpt-4o-mini",
+            "model": "openrouter/free",
             "messages": [
                 {"role": "system", "content": _get_system_prompt()},
                 {"role": "user", "content": user_message}
