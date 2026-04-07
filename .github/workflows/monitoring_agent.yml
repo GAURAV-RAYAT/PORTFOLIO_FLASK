@@ -10,31 +10,25 @@ jobs:
   monitoring:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger monitoring cycle
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run monitoring cycle
         env:
-          MONITORING_URL: ${{ secrets.MONITORING_URL || vars.MONITORING_URL || 'https://gauravrayat.me/api/monitoring/run' }}
-          MONITOR_RUN_TOKEN: ${{ secrets.MONITOR_RUN_TOKEN }}
-        run: |
-          AUTH_HEADER=""
-          if [ -n "$MONITOR_RUN_TOKEN" ]; then
-            AUTH_HEADER="X-Monitor-Token: $MONITOR_RUN_TOKEN"
-          fi
-
-          if [ -n "$AUTH_HEADER" ]; then
-            HTTP_CODE=$(curl -sS -o response.json -w "%{http_code}" \
-              -X POST "$MONITORING_URL" \
-              -H "$AUTH_HEADER" \
-              -H "Content-Type: application/json")
-          else
-            HTTP_CODE=$(curl -sS -o response.json -w "%{http_code}" \
-              -X POST "$MONITORING_URL" \
-              -H "Content-Type: application/json")
-          fi
-
-          echo "HTTP Status: $HTTP_CODE"
-          cat response.json
-
-          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
-            echo "Monitoring trigger failed."
-            exit 1
-          fi
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MONITOR_TARGETS: ${{ vars.MONITOR_TARGETS }}
+          MONITOR_ALERT_EMAIL: ${{ vars.MONITOR_ALERT_EMAIL }}
+          MONITOR_FAILURE_THRESHOLD: ${{ vars.MONITOR_FAILURE_THRESHOLD }}
+          MONITOR_TIMEOUT_SECONDS: ${{ vars.MONITOR_TIMEOUT_SECONDS }}
+        run: python scripts/run_monitoring_agent.py
