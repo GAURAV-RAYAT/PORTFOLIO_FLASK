@@ -36,7 +36,7 @@ class Config:
         "MONITOR_TARGETS",
         "https://gauravrayat.me,https://gauravrayat.me/api/health"
     )
-    MONITOR_TIMEOUT_SECONDS = int(os.environ.get("MONITOR_TIMEOUT_SECONDS", "10"))
-    MONITOR_FAILURE_THRESHOLD = int(os.environ.get("MONITOR_FAILURE_THRESHOLD", "3"))
+    MONITOR_TIMEOUT_SECONDS = int(os.environ.get("MONITOR_TIMEOUT_SECONDS") or "10")
+    MONITOR_FAILURE_THRESHOLD = int(os.environ.get("MONITOR_FAILURE_THRESHOLD") or "3")
     MONITOR_ALERT_EMAIL = os.environ.get("MONITOR_ALERT_EMAIL", "gaurav.rayat2004@gmail.com")
     MONITOR_RUN_TOKEN = os.environ.get("MONITOR_RUN_TOKEN")

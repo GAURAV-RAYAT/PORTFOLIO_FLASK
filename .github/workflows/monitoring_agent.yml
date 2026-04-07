@@ -27,8 +27,4 @@ jobs:
           MONGO_URI: ${{ secrets.MONGO_URI }}
           MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-          MONITOR_TARGETS: ${{ vars.MONITOR_TARGETS }}
-          MONITOR_ALERT_EMAIL: ${{ vars.MONITOR_ALERT_EMAIL }}
-          MONITOR_FAILURE_THRESHOLD: ${{ vars.MONITOR_FAILURE_THRESHOLD }}
-          MONITOR_TIMEOUT_SECONDS: ${{ vars.MONITOR_TIMEOUT_SECONDS }}
         run: python scripts/run_monitoring_agent.py
